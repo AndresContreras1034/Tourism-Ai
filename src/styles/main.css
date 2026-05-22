@@ -1,0 +1,10 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.home__main {
+  flex: 1;
+  width: 100%;
+}

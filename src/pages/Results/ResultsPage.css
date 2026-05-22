@@ -1,0 +1,226 @@
+/* PAGE */
+.results-page {
+  background: var(--bg-dark);
+  min-height: 100vh;
+  position: relative;
+  color: var(--white-neon);
+}
+
+/* BACKGROUND FX */
+.results-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, var(--purple-glow), transparent 40%),
+    radial-gradient(circle at 80% 70%, var(--cyan-electric), transparent 40%);
+  filter: blur(110px);
+  opacity: 0.25;
+}
+
+/* CONTAINER */
+.results-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ================= HERO ================= */
+.results-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* TITLE */
+.hero-title h2 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--purple-core), var(--cyan-electric));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-title p {
+  margin-top: 0.5rem;
+  color: #bfc7cf;
+}
+
+/* HERO CARD */
+.hero-card {
+  margin-top: 2rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.hero-card:hover {
+  transform: translateY(-6px) scale(1.02);
+}
+
+/* SKELETON */
+.hero-skeleton .skeleton-card {
+  height: 260px;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    #1a1f25 25%,
+    #222831 50%,
+    #1a1f25 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ================= SECTION ================= */
+.results-section {
+  margin-top: 2rem;
+}
+
+/* HEADER */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h3 {
+  font-size: 1.4rem;
+}
+
+/* TOKENS */
+.tokens-ok {
+  color: var(--cyan-electric);
+}
+
+.tokens-off {
+  color: #ff4d6d;
+}
+
+/* ================= GRID ================= */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  position: relative;
+}
+
+/* WRAPPER */
+.result-wrapper {
+  transition: 0.3s;
+}
+
+.result-wrapper:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+/* BLUR cuando no hay tokens */
+.results-grid.blur {
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ================= LOCKED ================= */
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  backdrop-filter: blur(6px);
+}
+
+.locked-box {
+  background: rgba(20, 24, 29, 0.85);
+  padding: 1.8rem;
+  border-radius: 18px;
+  text-align: center;
+  max-width: 320px;
+
+  border: 1px solid rgba(192, 124, 255, 0.3);
+
+  box-shadow:
+    0 0 25px rgba(159, 71, 255, 0.3),
+    0 0 40px rgba(59, 228, 246, 0.15);
+}
+
+.locked-box h4 {
+  margin-bottom: 0.5rem;
+}
+
+.locked-box p {
+  font-size: 0.9rem;
+  color: #bfc7cf;
+}
+
+/* BUTTON */
+.locked-box button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, var(--purple-core), var(--blue-tech));
+  color: white;
+
+  transition: 0.3s;
+}
+
+.locked-box button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(59, 228, 246, 0.5);
+}
+
+/* ================= SKELETON GRID ================= */
+.card-skeleton {
+  height: 200px;
+  border-radius: 16px;
+
+  background: linear-gradient(
+    90deg,
+    #1a1f25 25%,
+    #222831 50%,
+    #1a1f25 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ================= EMPTY ================= */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #8a94a3;
+}
+
+.empty-state.full {
+  grid-column: 1 / -1;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .hero-title h2 {
+    font-size: 2rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,130 @@
+/* FOOTER BASE */
+.footer {
+  position: relative;
+  background: var(--black-core);
+  overflow: hidden;
+  padding-top: 4rem;
+}
+
+/* BACKGROUND FX (igual que hero) */
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, var(--purple-glow), transparent 40%),
+              radial-gradient(circle at 90% 80%, var(--cyan-electric), transparent 40%);
+  filter: blur(80px);
+  opacity: 0.25;
+}
+
+/* CONTAINER */
+.footer-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+/* SECTION */
+.footer-section h4 {
+  color: var(--white-neon);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.footer-section p,
+.footer-section a {
+  color: #bfc7cf;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+/* LINKS */
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-section a:hover {
+  color: var(--cyan-electric);
+  text-shadow: 0 0 8px var(--cyan-electric);
+}
+
+/* BRAND */
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--purple-core), var(--cyan-electric));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* CARD GLASS (efecto tipo bubble del hero) */
+.footer-section {
+  background: rgba(20, 24, 29, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 1.2rem;
+  border: 1px solid rgba(192, 124, 255, 0.2);
+  box-shadow:
+    0 0 20px rgba(159, 71, 255, 0.15),
+    0 0 30px rgba(59, 228, 246, 0.08);
+  transition: 0.3s ease;
+}
+
+.footer-section:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    0 0 30px rgba(159, 71, 255, 0.3),
+    0 0 45px rgba(59, 228, 246, 0.2);
+}
+
+/* CONTACT */
+.footer-section address {
+  font-style: normal;
+}
+
+/* BOTTOM BAR */
+.footer-bottom {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(192, 124, 255, 0.2);
+  text-align: center;
+  padding: 1.5rem;
+  color: #8a94a3;
+  font-size: 0.85rem;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--canvas-shadow)
+  );
+}
+
+/* HOVER NEON LINE */
+.footer-bottom::after {
+  content: "";
+  display: block;
+  margin: 0.8rem auto 0;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-glow), var(--cyan-electric));
+  opacity: 0.5;
+  filter: blur(2px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}

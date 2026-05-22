@@ -1,0 +1,29 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden;
+
+}
+
+/* ROOT REACT */
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* VARIABLES GLOBALES */
+:root {
+  --purple-core: #C07CFF;
+  --purple-glow: #9F47FF;
+  --cyan-electric: #3BE4F6;
+  --blue-tech: #1E75C4;
+  --white-neon: #F0F4F8;
+
+  --black-core: #0A0A0E;
+  --bg-dark: #14181D;
+}

@@ -1,0 +1,477 @@
+/* =========================================================
+   PLAN DETAIL - NUEVA PALETA MORADA
+========================================================= */
+
+:root {
+  --bg: #07040f;
+  --bg-secondary: #12091f;
+  --card: rgba(24, 16, 40, 0.75);
+
+  --primary: #a855f7;
+  --primary-light: #c084fc;
+  --primary-dark: #7e22ce;
+
+  --text: #f5f3ff;
+  --text-soft: #c4b5fd;
+  --text-muted: #9ca3af;
+
+  --border: rgba(168, 85, 247, 0.2);
+
+  --shadow: 0 10px 35px rgba(168, 85, 247, 0.18);
+
+  --radius: 24px;
+}
+
+/* =========================================================
+   GENERAL
+========================================================= */
+
+.plan-page {
+  background:
+    radial-gradient(circle at top, #1f1036 0%, #07040f 60%);
+  min-height: 100vh;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+section {
+  width: min(1200px, 92%);
+  margin: auto;
+  padding: 5rem 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+}
+
+p {
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-screen {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.loading-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.loading-content h2 {
+  color: var(--primary-light);
+}
+
+.loading-content p {
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.plan-hero {
+  position: relative;
+  min-height: 85vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,0.2),
+      rgba(7,4,15,0.95)
+    ),
+    url("../../assets/hero-bg.jpg") center/cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(168,85,247,0.25), transparent 60%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 850px;
+  padding: 2rem;
+}
+
+.hero-content h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 1;
+  margin-bottom: 1.5rem;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #d8b4fe,
+    #a855f7
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.location {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.hero-meta span {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1.2rem;
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+}
+
+.score {
+  color: #facc15;
+}
+
+.tag {
+  color: var(--primary-light);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.cta-primary,
+.map-header button,
+.assistant-actions button {
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-weight: 600;
+}
+
+.cta-primary {
+  padding: 1rem 2.4rem;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+
+  color: white;
+  font-size: 1rem;
+
+  box-shadow: var(--shadow);
+}
+
+.cta-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 18px 40px rgba(168, 85, 247, 0.35);
+}
+
+/* =========================================================
+   ASSISTANT
+========================================================= */
+
+.assistant-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  padding: 2.5rem;
+
+  backdrop-filter: blur(20px);
+
+  box-shadow: var(--shadow);
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.assistant-avatar {
+  width: 70px;
+  height: 70px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 2rem;
+
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+}
+
+.assistant-badge {
+  color: var(--primary-light);
+  font-size: 0.9rem;
+}
+
+.assistant-main {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.assistant-recommendation {
+  display: grid;
+  gap: 1rem;
+}
+
+.assistant-recommendation p {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+  border-radius: 18px;
+}
+
+.assistant-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.assistant-actions button {
+  background: rgba(168,85,247,0.12);
+  color: var(--primary-light);
+
+  padding: 0.9rem 1.4rem;
+  border-radius: 14px;
+
+  border: 1px solid var(--border);
+}
+
+.assistant-actions button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* =========================================================
+   TRANSPORT
+========================================================= */
+
+.transport-grid,
+.budget-grid,
+.highlights {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.transport-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.transport-card,
+.highlight-card,
+.budget-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  padding: 2rem;
+  text-align: center;
+
+  transition: 0.3s ease;
+  backdrop-filter: blur(12px);
+}
+
+.transport-card:hover,
+.highlight-card:hover,
+.budget-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(192,132,252,0.45);
+}
+
+.transport-card img,
+.budget-card img {
+  width: 75px;
+  margin-bottom: 1rem;
+}
+
+.transport-card span {
+  display: inline-block;
+  margin-top: 1rem;
+
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+
+  background: rgba(168,85,247,0.18);
+  color: var(--primary-light);
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   MAPA
+========================================================= */
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  margin-bottom: 2rem;
+}
+
+.map-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.map-title img {
+  width: 55px;
+}
+
+.map-header button {
+  padding: 0.9rem 1.5rem;
+  border-radius: 14px;
+
+  background: rgba(168,85,247,0.15);
+  color: white;
+
+  border: 1px solid var(--border);
+}
+
+.map-header button:hover {
+  background: var(--primary);
+}
+
+.map-container {
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* =========================================================
+   EXPERIENCE
+========================================================= */
+
+.highlights {
+  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.highlight-card {
+  font-weight: 500;
+}
+
+/* =========================================================
+   BUDGET
+========================================================= */
+
+.budget-summary {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.budget-summary h1 {
+  font-size: clamp(3rem, 6vw, 5rem);
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #d8b4fe,
+    #a855f7
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.budget-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* =========================================================
+   FINAL CTA
+========================================================= */
+
+.final-cta {
+  text-align: center;
+  padding-bottom: 7rem;
+}
+
+.final-cta h2 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  section {
+    padding: 4rem 0;
+  }
+
+  .hero-content h1 {
+    font-size: 3rem;
+  }
+
+  .assistant-card,
+  .transport-card,
+  .highlight-card,
+  .budget-card {
+    padding: 1.5rem;
+  }
+
+  .map-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .assistant-actions {
+    flex-direction: column;
+  }
+
+  .assistant-actions button {
+    width: 100%;
+  }
+}

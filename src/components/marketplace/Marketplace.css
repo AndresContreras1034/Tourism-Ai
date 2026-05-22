@@ -1,0 +1,91 @@
+/* ================= BASE ================= */
+.marketplace {
+  position: relative;
+  padding: 3rem 1.5rem;
+  min-height: 100vh;
+  background: var(--bg-dark);
+  color: var(--white-neon);
+}
+
+/* BACKGROUND FX */
+.marketplace::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, var(--purple-glow), transparent 40%),
+    radial-gradient(circle at 80% 70%, var(--cyan-electric), transparent 40%);
+  filter: blur(100px);
+  opacity: 0.25;
+}
+
+/* ================= HEADER ================= */
+.marketplace-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.marketplace-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+
+  background: linear-gradient(90deg, var(--purple-core), var(--cyan-electric));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.marketplace-header p {
+  margin-top: 0.3rem;
+  color: #bfc7cf;
+  font-size: 0.9rem;
+}
+
+/* ================= GRID ================= */
+.marketplace-grid {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================= LOADING ================= */
+.marketplace-grid p {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #8a94a3;
+}
+
+/* ================= EMPTY ================= */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #8a94a3;
+
+  background: rgba(20, 24, 29, 0.5);
+  border-radius: 18px;
+  border: 1px dashed rgba(192, 124, 255, 0.2);
+}
+
+/* ================= CARD SPACING FIX ================= */
+.marketplace-grid > * {
+  width: 100%;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .marketplace-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .marketplace {
+    padding: 2rem 1rem;
+  }
+}

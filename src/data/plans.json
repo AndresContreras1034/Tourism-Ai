@@ -1,0 +1,188 @@
+[
+  {
+    "id": "plan_candelaria_001",
+    "title": "Recorrido cultural por La Candelaria",
+    "city": "Bogotá",
+    "location": {
+      "name": "La Candelaria",
+      "coordinates": {
+        "lat": 4.5964,
+        "lng": -74.0721
+      }
+    },
+    "profile_match": {
+      "budget": "bajo",
+      "interests": ["cultura", "historia", "fotografia"],
+      "companions": ["solo", "pareja"],
+      "travel_style": ["relajado", "explorador"]
+    },
+    "experience": {
+      "description": "Recorrido por el centro histórico con calles coloniales, museos y cafés tradicionales.",
+      "highlights": [
+        "Museo del Oro",
+        "Plaza de Bolívar",
+        "Calles coloniales",
+        "Cafés tradicionales"
+      ]
+    },
+    "routes": [
+      {
+        "type": "walking",
+        "duration_min": 120,
+        "distance_km": 2.5,
+        "difficulty": "baja"
+      },
+      {
+        "type": "uber",
+        "duration_min": 15,
+        "estimated_price": 8000
+      },
+      {
+        "type": "bike",
+        "duration_min": 25
+      },
+      {
+        "type": "bus",
+        "duration_min": 30
+      }
+    ],
+    "schedule": {
+      "best_hours": ["09:00", "16:00"],
+      "avoid_hours": ["18:30", "22:00"]
+    },
+    "budget": {
+      "level": "bajo",
+      "estimated_total": 30000,
+      "price_range": {
+        "coffee": "4000-8000",
+        "meal": "12000-25000",
+        "snack": "3000-7000"
+      }
+    },
+    "price_alerts": [
+      {
+        "item": "canelazo",
+        "normal_range": "8000-15000",
+        "alert_if_above": 20000,
+        "message": "Si te cobran más de 20k COP por un canelazo, es probable sobreprecio turístico."
+      }
+    ],
+    "safety": {
+      "level": "medio",
+      "tips": [
+        "Evitar calles solas después de las 6pm",
+        "No mostrar objetos de valor",
+        "Usar transporte confiable en la noche"
+      ]
+    },
+    "flags": [
+      {
+        "type": "warning",
+        "message": "Zona turística con precios inflados en algunos locales"
+      },
+      {
+        "type": "tip",
+        "message": "Negocia precios en tiendas informales"
+      }
+    ],
+    "map_points": [
+      {
+        "name": "Museo del Oro",
+        "lat": 4.6019,
+        "lng": -74.0724
+      },
+      {
+        "name": "Plaza de Bolívar",
+        "lat": 4.5981,
+        "lng": -74.0758
+      }
+    ],
+    "ai_context": {
+      "summary": "Plan cultural ideal para primera vez en Bogotá con bajo presupuesto.",
+      "why_recommended": "Coincide con intereses culturales y recorrido caminable.",
+      "local_insight": "La Candelaria es muy activa de día, pero requiere precaución en la noche."
+    }
+  },
+  {
+    "id": "plan_monserrate_002",
+    "title": "Amanecer en Monserrate",
+    "city": "Bogotá",
+    "location": {
+      "name": "Monserrate",
+      "coordinates": {
+        "lat": 4.6059,
+        "lng": -74.0556
+      }
+    },
+    "profile_match": {
+      "budget": "medio",
+      "interests": ["naturaleza", "fotografia", "religion"],
+      "companions": ["pareja", "amigos"],
+      "travel_style": ["aventurero", "relajado"]
+    },
+    "experience": {
+      "description": "Subida al cerro con vista panorámica de Bogotá al amanecer.",
+      "highlights": [
+        "Vista panorámica de la ciudad",
+        "Basílica de Monserrate",
+        "Senderos naturales"
+      ]
+    },
+    "routes": [
+      {
+        "type": "walking",
+        "duration_min": 90,
+        "difficulty": "alta"
+      },
+      {
+        "type": "funicular",
+        "duration_min": 10,
+        "estimated_price": 16000
+      }
+    ],
+    "schedule": {
+      "best_hours": ["05:00", "09:00"],
+      "avoid_hours": ["18:00", "23:00"]
+    },
+    "budget": {
+      "level": "medio",
+      "estimated_total": 60000,
+      "price_range": {
+        "breakfast": "15000-30000"
+      }
+    },
+    "price_alerts": [
+      {
+        "item": "desayuno",
+        "normal_range": "15000-30000",
+        "alert_if_above": 40000,
+        "message": "Desayunos en la cima pueden ser más caros de lo normal."
+      }
+    ],
+    "safety": {
+      "level": "medio",
+      "tips": [
+        "Ir temprano para evitar multitudes",
+        "Cuidar pertenencias en el transporte"
+      ]
+    },
+    "flags": [
+      {
+        "type": "tip",
+        "message": "El amanecer es el mejor momento para fotos"
+      }
+    ],
+    "map_points": [
+      {
+        "name": "Entrada Monserrate",
+        "lat": 4.6059,
+        "lng": -74.0556
+      }
+    ],
+    "ai_context": {
+      "summary": "Experiencia natural y espiritual con la mejor vista de Bogotá.",
+      "why_recommended": "Ideal para usuarios con interés en fotografía y naturaleza.",
+      "local_insight": "El clima puede cambiar rápidamente en la cima."
+    }
+  }
+]

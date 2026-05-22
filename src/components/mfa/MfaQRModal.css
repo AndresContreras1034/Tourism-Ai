@@ -1,0 +1,181 @@
+/* OVERLAY */
+.mfa-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 14, 0.85);
+  backdrop-filter: blur(8px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 200;
+}
+
+/* MODAL */
+.mfa-modal {
+  width: 100%;
+  max-width: 420px;
+
+  background: rgba(20, 24, 29, 0.9);
+  backdrop-filter: blur(16px);
+
+  padding: 2rem;
+  border-radius: 22px;
+  color: var(--white-neon);
+
+  border: 1px solid rgba(192, 124, 255, 0.25);
+
+  box-shadow:
+    0 0 30px rgba(159, 71, 255, 0.25),
+    0 0 60px rgba(59, 228, 246, 0.15);
+
+  position: relative;
+  text-align: center;
+}
+
+/* GLOW BORDER */
+.mfa-modal::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 22px;
+  background: linear-gradient(90deg, var(--purple-glow), var(--cyan-electric));
+  opacity: 0.12;
+  filter: blur(12px);
+  z-index: -1;
+}
+
+/* TITLE */
+.mfa-modal h2 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+
+  background: linear-gradient(90deg, var(--purple-core), var(--cyan-electric));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* STEP TEXT */
+.mfa-modal p {
+  font-size: 0.9rem;
+  color: #bfc7cf;
+  margin-bottom: 0.8rem;
+}
+
+/* QR IMAGE */
+.mfa-modal img {
+  margin: 1rem auto;
+  border-radius: 12px;
+
+  border: 2px solid rgba(192, 124, 255, 0.3);
+
+  box-shadow:
+    0 0 20px rgba(159, 71, 255, 0.4),
+    0 0 35px rgba(59, 228, 246, 0.2);
+}
+
+/* BACKUP KEY */
+.mfa-modal b {
+  color: var(--cyan-electric);
+}
+
+/* INPUT */
+.mfa-modal input {
+  width: 100%;
+  margin-top: 1rem;
+
+  padding: 0.7rem;
+  border-radius: 12px;
+
+  border: 1px solid rgba(192, 124, 255, 0.3);
+  background: rgba(10, 10, 14, 0.85);
+  color: white;
+
+  text-align: center;
+  letter-spacing: 2px;
+  font-size: 1rem;
+
+  outline: none;
+  transition: 0.25s;
+}
+
+/* INPUT FOCUS */
+.mfa-modal input:focus {
+  border-color: var(--cyan-electric);
+  box-shadow: 0 0 12px var(--cyan-electric);
+}
+
+/* BUTTON BASE */
+.mfa-modal button {
+  margin-top: 1rem;
+  width: 100%;
+
+  padding: 0.7rem;
+  border-radius: 12px;
+  border: none;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+/* VERIFY BUTTON */
+.mfa-modal button:not(.close-btn) {
+  background: linear-gradient(135deg, var(--purple-core), var(--blue-tech));
+  color: white;
+
+  box-shadow: 0 0 15px rgba(159, 71, 255, 0.4);
+}
+
+.mfa-modal button:not(.close-btn):hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(59, 228, 246, 0.6);
+}
+
+.mfa-modal button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* CLOSE BUTTON */
+.mfa-modal .close-btn {
+  margin-top: 0.8rem;
+  background: transparent;
+  color: #8a94a3;
+}
+
+.mfa-modal .close-btn:hover {
+  color: var(--cyan-electric);
+}
+
+/* SUCCESS */
+.mfa-modal h3 {
+  color: #00ffb3;
+  margin-top: 1rem;
+
+  text-shadow: 0 0 10px rgba(0, 255, 180, 0.4);
+}
+
+/* ERROR */
+.mfa-modal .error {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+
+  color: #ff4d6d;
+  text-shadow: 0 0 8px rgba(255, 0, 90, 0.5);
+}
+
+/* LOADING TEXT */
+.mfa-modal .loading {
+  color: var(--cyan-electric);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .mfa-modal {
+    margin: 1rem;
+    padding: 1.6rem;
+  }
+}
