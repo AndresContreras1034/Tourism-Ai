@@ -4,20 +4,18 @@ const API_URL =
 console.log("🌐 [AUTH SERVICE INIT] API_URL =", API_URL);
 
 /* =========================================================
-   🧠 SESSION HELPERS (COMPATIBLE CON AuthContext)
+   🧠 SESSION HELPERS
 ========================================================= */
 export const getSession = () => {
   const user = localStorage.getItem("user");
   const token = localStorage.getItem("token");
 
-  console.log("🧠 SESSION CHECK →", {
-    hasUser: !!user,
-    hasToken: !!token,
-  });
-
   return {
     user: user ? JSON.parse(user) : null,
-    token: token || null,
+    token:
+      token && token !== "null" && token !== "undefined"
+        ? token
+        : null,
   };
 };
 
@@ -32,7 +30,7 @@ export const clearSession = () => {
 };
 
 /* =========================================================
-   🧠 SAFE RESPONSE PARSER
+   🧠 RESPONSE PARSER
 ========================================================= */
 const parseResponse = async (response) => {
   const text = await response.text();
@@ -40,9 +38,7 @@ const parseResponse = async (response) => {
   let data;
   try {
     data = text ? JSON.parse(text) : {};
-  } catch (err) {
-    console.warn("⚠️ Response no es JSON:");
-    console.warn(text);
+  } catch {
     data = { raw: text };
   }
 
@@ -74,9 +70,14 @@ export const loginUser = async (credentials) => {
     throw new Error(data.message || "Error al iniciar sesión");
   }
 
-  // 🔐 MFA FLOW
+  /* =========================
+     🔐 MFA FLOW
+  ========================= */
   if (data?.requiresMFA) {
     console.log("🔐 MFA REQUIRED");
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
     if (data.userId) {
       sessionStorage.setItem("mfa_userId", data.userId);
@@ -94,7 +95,6 @@ export const loginUser = async (credentials) => {
     throw new Error("Respuesta inválida del login");
   }
 
-  // 🔥 GUARDAR SESIÓN (CLAVE PARA TU NAVBAR)
   localStorage.setItem("user", JSON.stringify(data.user));
   localStorage.setItem("token", token);
 
@@ -104,7 +104,7 @@ export const loginUser = async (credentials) => {
 };
 
 /* =========================================================
-   🧾 REGISTER
+   🧾 REGISTER (🔥 ARREGLADO)
 ========================================================= */
 export const registerUser = async (userData) => {
   console.log("🧾 REGISTER REQUEST →", userData);
@@ -121,13 +121,49 @@ export const registerUser = async (userData) => {
     throw new Error(data.message || "Error al registrar usuario");
   }
 
-  const token =
+  let token =
     data?.token ||
     data?.accessToken ||
     data?.data?.token;
 
-  if (token && data?.user) {
-    localStorage.setItem("user", JSON.stringify(data.user));
+  const user = data?.user;
+
+  /* =========================================================
+     🔥 FIX CRÍTICO: SI BACKEND NO DEVUELVE TOKEN
+  ========================================================= */
+  if (!token && userData?.email && userData?.password) {
+    console.warn("⚠️ Register sin token → haciendo auto-login");
+
+    const loginRes = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+      }),
+    });
+
+    const loginData = await parseResponse(loginRes);
+
+    token =
+      loginData?.token ||
+      loginData?.accessToken ||
+      loginData?.data?.token;
+
+    if (token && loginData?.user) {
+      localStorage.setItem("user", JSON.stringify(loginData.user));
+      localStorage.setItem("token", token);
+
+      console.log("🟢 REGISTER + AUTO LOGIN OK");
+      return loginData;
+    }
+  }
+
+  /* =========================================================
+     🔐 SI BACKEND SÍ DEVUELVE TOKEN
+  ========================================================= */
+  if (token && user) {
+    localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
     console.log("🟢 REGISTER OK → SESSION GUARDADA");
@@ -163,7 +199,6 @@ export const verifyMfaLogin = async ({ userId, token }) => {
     throw new Error("Respuesta MFA inválida");
   }
 
-  // 🔥 GUARDAR SESIÓN FINAL
   localStorage.setItem("user", JSON.stringify(data.user));
   localStorage.setItem("token", finalToken);
 

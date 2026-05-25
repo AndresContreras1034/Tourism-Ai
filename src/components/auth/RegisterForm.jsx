@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../../services/auth.service";
+
+import { registerUser, loginUser } from "../../services/auth.service";
 import "./Register.css";
 
 const STORAGE_KEY = "registerForm";
 
 // ==============================
-// 🔒 PASSWORD RULES (SOURCE OF TRUTH)
+// 🔒 PASSWORD RULES
 // ==============================
 const passwordRules = [
   { label: "Mínimo 8 caracteres", test: (p) => p.length >= 8 },
@@ -32,7 +33,7 @@ const getPasswordStrength = (password = "") => {
 };
 
 // ==============================
-// 🔐 SAFE STORAGE HELPERS
+// 💾 STORAGE
 // ==============================
 const loadForm = () => {
   try {
@@ -48,9 +49,7 @@ const loadForm = () => {
 const saveForm = (form) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
-  } catch {
-    // fail silently (no crash ever)
-  }
+  } catch {}
 };
 
 // ==============================
@@ -60,28 +59,21 @@ export default function RegisterForm() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState(loadForm);
-
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ==============================
-  // 💾 AUTO SAVE (DEBOUNCED FEEL)
-  // ==============================
   useEffect(() => {
     saveForm(form);
   }, [form]);
 
-  // ==============================
-  // 🔥 PASSWORD STRENGTH MEMO
-  // ==============================
   const strength = useMemo(
     () => getPasswordStrength(form.password),
     [form.password]
   );
 
   // ==============================
-  // 🔍 VALIDATION ENGINE
+  // 🔍 VALIDATION
   // ==============================
   const validate = () => {
     const e = {};
@@ -91,26 +83,18 @@ export default function RegisterForm() {
     const password = form.password;
     const confirm = form.confirmPassword;
 
-    // NAME
     if (!name) e.name = "El nombre es obligatorio";
     else if (!/^[a-zA-Z\s]{3,30}$/.test(name))
-      e.name = "Nombre inválido (solo letras, 3-30 caracteres)";
+      e.name = "Nombre inválido";
 
-    // EMAIL
     if (!email) e.email = "El correo es obligatorio";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       e.email = "Correo inválido";
 
-    // PASSWORD
     if (!password) e.password = "La contraseña es obligatoria";
-    else {
-      const failedRules = passwordRules.filter((r) => !r.test(password));
-      if (failedRules.length > 0) {
-        e.password = "La contraseña no cumple los requisitos";
-      }
-    }
+    else if (passwordRules.some((r) => !r.test(password)))
+      e.password = "La contraseña no cumple requisitos";
 
-    // CONFIRM
     if (!confirm) e.confirmPassword = "Confirma la contraseña";
     else if (confirm !== password)
       e.confirmPassword = "Las contraseñas no coinciden";
@@ -119,7 +103,7 @@ export default function RegisterForm() {
   };
 
   // ==============================
-  // ✍️ CHANGE HANDLER
+  // ✍️ CHANGE
   // ==============================
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -129,19 +113,17 @@ export default function RegisterForm() {
       [name]: value,
     }));
 
-    // clear only field error
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   // ==============================
-  // 🚀 SUBMIT (SAFE MODE)
+  // 🚀 SUBMIT (FIX REAL)
   // ==============================
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (loading) return; // 🛑 anti double submit
+    if (loading) return;
 
     const validationErrors = validate();
 
@@ -160,18 +142,41 @@ export default function RegisterForm() {
         password: form.password,
       };
 
+      console.log("🧾 REGISTER START", payload);
+
+      // 1️⃣ REGISTER
       const res = await registerUser(payload);
 
-      if (!res) throw new Error("Respuesta inválida del servidor");
+      if (!res) throw new Error("Error en registro");
 
+      console.log("🟡 REGISTER OK", res);
+
+      // 2️⃣ 🔥 AUTO LOGIN (FIX CRÍTICO)
+      const loginRes = await loginUser({
+        email: payload.email,
+        password: payload.password,
+      });
+
+      console.log("🟢 AUTO LOGIN OK", loginRes);
+
+      // 3️⃣ ENSURE SESSION
+      if (loginRes?.token && loginRes?.user) {
+        localStorage.setItem("user", JSON.stringify(loginRes.user));
+        localStorage.setItem("token", loginRes.token);
+
+        console.log("💾 SESSION SAVED AFTER REGISTER");
+      }
+
+      // 4️⃣ CLEAN FORM + NAVIGATE
       localStorage.removeItem(STORAGE_KEY);
       localStorage.setItem("onboardingStep", "true");
 
       navigate("/onboarding");
     } catch (err) {
+      console.error("❌ REGISTER ERROR", err);
+
       setErrors({
         general:
-          err?.response?.data?.message ||
           err?.message ||
           "Error inesperado al registrarse",
       });
@@ -180,77 +185,52 @@ export default function RegisterForm() {
     }
   };
 
-  // ==============================
-  // 🎨 UI
-  // ==============================
   return (
     <div className="register-wrapper">
-      <form className="register-form" onSubmit={handleSubmit} noValidate>
+      <form className="register-form" onSubmit={handleSubmit}>
         <h2>Crear cuenta</h2>
 
         {errors.general && (
           <div className="error-box">{errors.general}</div>
         )}
 
-        {/* NAME */}
-        <div className="form-group">
-          <label>Nombre</label>
-          <input name="name" value={form.name} onChange={handleChange} />
-          {errors.name && <span className="error">{errors.name}</span>}
-        </div>
+        <input
+          name="name"
+          placeholder="Nombre"
+          value={form.name}
+          onChange={handleChange}
+        />
+        {errors.name && <span className="error">{errors.name}</span>}
 
-        {/* EMAIL */}
-        <div className="form-group">
-          <label>Email</label>
-          <input name="email" value={form.email} onChange={handleChange} />
-          {errors.email && <span className="error">{errors.email}</span>}
-        </div>
+        <input
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        {errors.email && <span className="error">{errors.email}</span>}
 
-        {/* PASSWORD */}
-        <div className="form-group">
-          <label>Contraseña</label>
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-          />
+        <input
+          type={showPassword ? "text" : "password"}
+          name="password"
+          placeholder="Contraseña"
+          value={form.password}
+          onChange={handleChange}
+        />
+        {errors.password && (
+          <span className="error">{errors.password}</span>
+        )}
 
-          <ul className="rules">
-            {passwordRules.map((r, i) => (
-              <li key={i} style={{ color: r.test(form.password) ? "green" : "red" }}>
-                {r.label}
-              </li>
-            ))}
-          </ul>
-
-          <div className="strength-bar">
-            <div className={`bar ${strength}`} />
-            <small>
-              {strength === "weak" && "Débil"}
-              {strength === "medium" && "Media"}
-              {strength === "strong" && "Fuerte"}
-            </small>
-          </div>
-
-          {errors.password && (
-            <span className="error">{errors.password}</span>
-          )}
-        </div>
-
-        {/* CONFIRM */}
-        <div className="form-group">
-          <label>Confirmar contraseña</label>
-          <input
-            type={showPassword ? "text" : "password"}
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={handleChange}
-          />
-          {errors.confirmPassword && (
-            <span className="error">{errors.confirmPassword}</span>
-          )}
-        </div>
+        <input
+          type={showPassword ? "text" : "password"}
+          name="confirmPassword"
+          placeholder="Confirmar contraseña"
+          value={form.confirmPassword}
+          onChange={handleChange}
+        />
+        {errors.confirmPassword && (
+          <span className="error">{errors.confirmPassword}</span>
+        )}
 
         <button disabled={loading}>
           {loading ? "Creando..." : "Registrarse"}

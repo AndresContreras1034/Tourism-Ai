@@ -57,7 +57,7 @@ export default function Chat() {
     try {
       console.log("📤 Enviando:", userText);
 
-      const res = await post("/api/ai/chat", {
+      const res = await post("/ai/chat", {
         message: userText,
       });
 

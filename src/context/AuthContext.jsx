@@ -3,18 +3,19 @@ import { createContext, useState, useEffect, useCallback } from "react";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  console.log("🔥 [AUTH PROVIDER] RENDER");
-
+  /* =========================================================
+     🔐 STATE
+  ========================================================= */
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+
+  const [loading, setLoading] = useState(true);
 
   const [mfaPending, setMfaPending] = useState(false);
   const [mfaUserId, setMfaUserId] = useState(null);
 
-  const [loading, setLoading] = useState(true);
-
   /* =========================================================
-     🧠 INIT SESSION (SOLO UNA VEZ)
+     🧠 INIT SESSION
   ========================================================= */
   useEffect(() => {
     console.log("🚀 [AUTH INIT] START");
@@ -23,18 +24,26 @@ export function AuthProvider({ children }) {
       const storedUser = localStorage.getItem("user");
       const storedToken = localStorage.getItem("token");
 
-      console.log("📦 STORAGE RAW:", { storedUser, storedToken });
+      const parsedUser =
+        storedUser && storedUser !== "undefined"
+          ? JSON.parse(storedUser)
+          : null;
 
-      if (storedUser && storedUser !== "undefined") {
-        setUser(JSON.parse(storedUser));
-      }
+      const parsedToken =
+        storedToken && storedToken !== "undefined"
+          ? storedToken
+          : null;
 
-      if (storedToken && storedToken !== "undefined") {
-        setToken(storedToken);
-      }
+      setUser(parsedUser);
+      setToken(parsedToken);
 
+      console.log("📦 [AUTH INIT] RESTORED:", {
+        user: !!parsedUser,
+        token: !!parsedToken,
+      });
     } catch (err) {
-      console.error("❌ AUTH INIT ERROR", err);
+      console.error("❌ [AUTH INIT ERROR]", err);
+
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     } finally {
@@ -44,94 +53,109 @@ export function AuthProvider({ children }) {
   }, []);
 
   /* =========================================================
-     🔄 GLOBAL SYNC (🔥 CLAVE PARA NAVBAR + MFA)
+     🔄 GLOBAL SYNC (IMPORTANTE PARA NAVBAR)
   ========================================================= */
   const syncSession = useCallback(() => {
-    console.log("🔄 SYNC SESSION");
-
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
 
-    if (storedUser && storedUser !== "undefined") {
-      setUser(JSON.parse(storedUser));
-    }
+    setUser(
+      storedUser && storedUser !== "undefined"
+        ? JSON.parse(storedUser)
+        : null
+    );
 
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    setToken(
+      storedToken && storedToken !== "undefined"
+        ? storedToken
+        : null
+    );
+
+    console.log("🔄 [AUTH SYNC] SESSION UPDATED");
   }, []);
 
   /* =========================================================
-     🔐 LOGIN NORMAL
+     🔐 LOGIN
   ========================================================= */
-  const login = (data) => {
-    console.log("🚨 LOGIN INPUT:", data);
+  const login = async (credentials) => {
+    console.log("🚀 [LOGIN START]", credentials);
 
-    if (!data) return null;
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
 
-    if (data.requiresMFA) {
-      setMfaPending(true);
-      setMfaUserId(data.userId);
+      const data = await res.json();
 
-      return { requiresMFA: true, userId: data.userId };
+      console.log("📨 [LOGIN RESPONSE]", {
+        status: res.status,
+        data,
+      });
+
+      /* =========================
+         🔥 MFA FLOW
+      ========================= */
+      if (data?.requiresMFA) {
+        console.log("🔐 [MFA REQUIRED]");
+
+        setMfaPending(true);
+        setMfaUserId(data.userId);
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        return {
+          requiresMFA: true,
+          userId: data.userId,
+        };
+      }
+
+      const finalToken = data?.token;
+      const finalUser = data?.user;
+
+      if (!finalToken || !finalUser) {
+        console.error("❌ [LOGIN INVALID RESPONSE]", data);
+        throw new Error("Invalid login response");
+      }
+
+      setUser(finalUser);
+      setToken(finalToken);
+
+      localStorage.setItem("user", JSON.stringify(finalUser));
+      localStorage.setItem("token", finalToken);
+
+      setMfaPending(false);
+      setMfaUserId(null);
+
+      console.log("🟢 [LOGIN SUCCESS]");
+
+      return {
+        success: true,
+        user: finalUser,
+        token: finalToken,
+      };
+    } catch (err) {
+      console.error("❌ [LOGIN ERROR]", err);
+      throw err;
     }
-
-    const finalToken =
-      data.token ||
-      data.accessToken ||
-      data?.data?.token;
-
-    const finalUser =
-      data.user ||
-      data?.data?.user;
-
-    if (!finalToken || !finalUser) {
-      console.error("❌ LOGIN INVALID FORMAT");
-      return null;
-    }
-
-    setUser(finalUser);
-    setToken(finalToken);
-
-    localStorage.setItem("user", JSON.stringify(finalUser));
-    localStorage.setItem("token", finalToken);
-
-    setMfaPending(false);
-    setMfaUserId(null);
-
-    console.log("🟢 LOGIN OK");
-    return { success: true };
   };
 
   /* =========================================================
-     🔐 MFA COMPLETE LOGIN (🔥 FIX DEFINITIVO)
+     🔐 MFA COMPLETE
   ========================================================= */
   const completeMfaLogin = (data) => {
-    console.log("🚨 MFA COMPLETE RAW:", data);
+    console.log("🚨 [MFA COMPLETE]", data);
 
-    const finalToken =
-      data.token ||
-      data.accessToken ||
-      data?.data?.token;
+    const finalToken = data?.token || data?.accessToken;
+    const finalUser = data?.user;
 
-    const finalUser =
-      data.user ||
-      data?.data?.user;
-
-    // 🔥 fallback crítico (evita desync total)
     if (!finalToken || !finalUser) {
-      console.warn("⚠️ MFA sin payload → usando localStorage fallback");
-
-      const fallbackUser = localStorage.getItem("user");
-      const fallbackToken = localStorage.getItem("token");
-
-      if (fallbackUser && fallbackToken) {
-        setUser(JSON.parse(fallbackUser));
-        setToken(fallbackToken);
-        return;
-      }
-
-      return;
+      console.error("❌ [MFA INVALID RESPONSE]", data);
+      throw new Error("Invalid MFA response");
     }
 
     setUser(finalUser);
@@ -143,14 +167,16 @@ export function AuthProvider({ children }) {
     setMfaPending(false);
     setMfaUserId(null);
 
-    console.log("🟢 MFA LOGIN SYNC OK");
+    console.log("🟢 [MFA SUCCESS] SESSION READY");
+
+    return { success: true };
   };
 
   /* =========================================================
      🚪 LOGOUT
   ========================================================= */
   const logout = () => {
-    console.log("🚪 LOGOUT");
+    console.log("🚪 [LOGOUT]");
 
     setUser(null);
     setToken(null);
@@ -161,16 +187,20 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
-    console.log("🧹 SESSION CLEARED");
+    console.log("🧹 [SESSION CLEARED]");
   };
 
-  const isAuthenticated = !loading && !!token;
+  /* =========================================================
+     🧪 AUTH STATE
+  ========================================================= */
+  const isAuthenticated = !!token && !loading;
 
-  console.log("📊 AUTH STATE:", {
-    user,
-    token,
+  console.log("📊 [AUTH STATE]", {
+    user: !!user,
+    token: !!token,
     loading,
     isAuthenticated,
+    mfaPending,
   });
 
   return (
@@ -183,18 +213,16 @@ export function AuthProvider({ children }) {
         logout,
         completeMfaLogin,
 
-        syncSession, // 🔥 opcional pero útil
-
         isAuthenticated,
         loading,
 
-        setUser,
-        setToken,
-
         mfaPending,
         mfaUserId,
-        setMfaPending,
-        setMfaUserId,
+
+        syncSession, // 🔥 clave para navbar / refresh manual
+
+        setUser,
+        setToken,
       }}
     >
       {children}
