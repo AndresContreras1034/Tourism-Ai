@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import "./PlanDetail.css";
@@ -18,22 +18,41 @@ import cafeImg from "../../assets/cafe.png";
 import mealImg from "../../assets/meal.png";
 import snackImg from "../../assets/snack.png";
 
+// 🔌 API PLACEHOLDER (SIN MOCK, SOLO CONTRATO)
+const plansApi = {
+  async getById(id) {
+    throw new Error("Backend not connected yet");
+  }
+};
+
 export default function PlanDetail() {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
-    if (location.state?.plan) {
-      setPlan(location.state.plan);
-    } else {
-      navigate("/plans");
-    }
-  }, [location.state, navigate]);
+    const loadPlan = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  if (!plan) {
+        const data = await plansApi.getById(id);
+        setPlan(data);
+      } catch (err) {
+        setError("Plan no disponible en este momento");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPlan();
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="loading-screen">
         <Navbar />
@@ -43,7 +62,28 @@ export default function PlanDetail() {
           animate={{ opacity: 1 }}
         >
           <h2>Construyendo tu experiencia...</h2>
-          <p>ClaudIA está analizando rutas, clima y seguridad</p>
+          <p>ClaudIA está preparando tu ruta</p>
+        </motion.div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !plan) {
+    return (
+      <div className="loading-screen">
+        <Navbar />
+        <motion.div
+          className="loading-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <h2>⚠️ No se pudo cargar el plan</h2>
+          <p>{error}</p>
+
+          <button onClick={() => navigate("/plans")}>
+            Volver
+          </button>
         </motion.div>
         <Footer />
       </div>
@@ -63,15 +103,19 @@ export default function PlanDetail() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1>{plan.title}</h1>
+          <h1>{plan.title || "Plan personalizado"}</h1>
 
           <p className="location">
-            📍 {plan.location?.name}, {plan.city}
+            📍 {plan.location?.name || "Ubicación no disponible"}
           </p>
 
           <div className="hero-meta">
-            <span className="score">⭐⭐⭐⭐⭐ {plan.score}</span>
-            <span className="tag">Optimizado por ClaudIA</span>
+            <span className="score">
+              ⭐ {plan.score || "N/A"}
+            </span>
+            <span className="tag">
+              Experiencia optimizada
+            </span>
           </div>
 
           <button className="cta-primary">
@@ -80,7 +124,7 @@ export default function PlanDetail() {
         </motion.div>
       </section>
 
-      {/* CLAUDIA IA */}
+      {/* IA SECTION (SIN LOGICA MOCK) */}
       <section className="assistant-section">
         <motion.div
           className="assistant-card"
@@ -92,48 +136,32 @@ export default function PlanDetail() {
             <div>
               <h2>ClaudIA</h2>
               <span className="assistant-badge">
-                IA de planificación en tiempo real
+                Asistente de planificación
               </span>
             </div>
           </div>
 
-          <motion.p
-            className="assistant-main"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            Hola 👋, soy <strong>ClaudIA</strong>. Analicé este plan usando datos
-            de movilidad, seguridad y comportamiento de viajeros.
-          </motion.p>
+          <p className="assistant-main">
+            Información generada por el sistema de recomendaciones.
+          </p>
 
-          <motion.div
-            className="assistant-recommendation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
+          <div className="assistant-recommendation">
             <p>
               {plan.ai_context?.summary ||
-                "Te recomiendo iniciar entre 9:00 y 11:00 AM para evitar congestión y mejorar seguridad."}
+                "Puedes iniciar tu recorrido en horario flexible según disponibilidad."}
             </p>
 
             <p>
               {plan.ai_context?.local_insight ||
-                "Empieza por el Museo del Oro y continúa hacia la Plaza de Bolívar para optimizar el recorrido."}
+                "Puedes comer acá: restaurantes locales cercanos al área del plan."}
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="assistant-actions"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-          >
-            <button>💸 Más económico</button>
-            <button>⚡ Más rápido</button>
-            <button>🛡️ Más seguro</button>
-          </motion.div>
+          <div className="assistant-actions">
+            <button>Más económico</button>
+            <button>Más rápido</button>
+            <button>Más seguro</button>
+          </div>
         </motion.div>
       </section>
 
@@ -142,11 +170,11 @@ export default function PlanDetail() {
         <h2>Cómo moverte</h2>
 
         <div className="transport-grid">
-          {[ 
-            { img: caminarImg, title: "Caminar", desc: "120 min · Gratis", tag: "Recomendado" },
-            { img: uberImg, title: "Uber", desc: "15 min · 8.000 COP", tag: "Más rápido" },
-            { img: bicicletaImg, title: "Bicicleta", desc: "25 min · Bajo costo" },
-            { img: busImg, title: "Bus", desc: "30 min · Económico" }
+          {[
+            { img: caminarImg, title: "Caminar", desc: "Opcional" },
+            { img: uberImg, title: "Uber", desc: "Disponible" },
+            { img: bicicletaImg, title: "Bicicleta", desc: "Opcional" },
+            { img: busImg, title: "Bus", desc: "Disponible" }
           ].map((t, i) => (
             <motion.div
               key={i}
@@ -156,7 +184,6 @@ export default function PlanDetail() {
               <img src={t.img} alt="" />
               <h3>{t.title}</h3>
               <p>{t.desc}</p>
-              {t.tag && <span>{t.tag}</span>}
             </motion.div>
           ))}
         </div>
@@ -167,7 +194,7 @@ export default function PlanDetail() {
         <div className="map-header">
           <div className="map-title">
             <img src={mapaImg} alt="" />
-            <h2>Ruta optimizada</h2>
+            <h2>Ruta</h2>
           </div>
 
           <button onClick={() => setShowMap(!showMap)}>
@@ -182,8 +209,8 @@ export default function PlanDetail() {
             animate={{ opacity: 1 }}
           >
             <MapView
-              center={plan.location.coordinates}
-              points={plan.map_points}
+              center={plan.location?.coordinates}
+              points={plan.map_points || []}
             />
           </motion.div>
         )}
@@ -191,12 +218,15 @@ export default function PlanDetail() {
 
       {/* EXPERIENCIA */}
       <section className="experience-section">
-        <h2>Lo que vas a vivir</h2>
+        <h2>Experiencia</h2>
 
-        <p>{plan.experience?.description}</p>
+        <p>
+          {plan.experience?.description ||
+            "Explora una experiencia diseñada para ti."}
+        </p>
 
         <div className="highlights">
-          {plan.experience?.highlights?.map((h, i) => (
+          {(plan.experience?.highlights || []).map((h, i) => (
             <motion.div
               key={i}
               className="highlight-card"
@@ -210,17 +240,18 @@ export default function PlanDetail() {
 
       {/* PRESUPUESTO */}
       <section className="budget-section">
-        <h2>Tu inversión</h2>
+        <h2>Presupuesto</h2>
 
         <div className="budget-summary">
           <h1>
-            {plan.budget?.estimated_total?.toLocaleString()} COP
+            {plan.budget?.estimated_total
+              ? `${plan.budget.estimated_total} COP`
+              : "Estimación no disponible"}
           </h1>
-          <p>Estimación inteligente basada en tu perfil</p>
         </div>
 
         <div className="budget-grid">
-          {[ 
+          {[
             { img: cafeImg, title: "Café", value: plan.budget?.price_range?.coffee },
             { img: mealImg, title: "Comida", value: plan.budget?.price_range?.meal },
             { img: snackImg, title: "Snacks", value: plan.budget?.price_range?.snack }
@@ -228,19 +259,19 @@ export default function PlanDetail() {
             <div key={i} className="budget-card">
               <img src={b.img} alt="" />
               <h3>{b.title}</h3>
-              <p>{b.value}</p>
+              <p>{b.value || "Por definir"}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA FINAL */}
+      {/* CTA */}
       <section className="final-cta">
-        <h2>¿Listo para comenzar?</h2>
-        <p>ClaudIA seguirá optimizando tu experiencia en tiempo real</p>
+        <h2>¿Listo?</h2>
+        <p>Tu experiencia será optimizada dinámicamente</p>
 
         <button className="cta-primary">
-          Iniciar ahora
+          Iniciar
         </button>
       </section>
 

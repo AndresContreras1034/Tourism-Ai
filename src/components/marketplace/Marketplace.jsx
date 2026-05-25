@@ -1,7 +1,9 @@
-import { useMemo } from "react";
 import "./Marketplace.css";
 import PlanCard from "./PlanCard";
 
+/**
+ * 📭 Empty state
+ */
 function EmptyState() {
   return (
     <div className="empty-state">
@@ -10,12 +12,14 @@ function EmptyState() {
   );
 }
 
+/**
+ * 📊 Header simple (sin useMemo innecesario)
+ */
 function ResultsHeader({ count }) {
-  const label = useMemo(() => {
-    if (count === 0) return "Sin resultados";
-    if (count === 1) return "1 resultado encontrado";
-    return `${count} resultados encontrados`;
-  }, [count]);
+  let label = "Sin resultados";
+
+  if (count === 1) label = "1 resultado encontrado";
+  else if (count > 1) label = `${count} resultados encontrados`;
 
   return (
     <div className="marketplace-header">
@@ -25,32 +29,42 @@ function ResultsHeader({ count }) {
   );
 }
 
+/**
+ * 🧭 Marketplace (UI only)
+ * - Sin mock
+ * - Sin lógica de negocio
+ * - Solo render
+ */
 export default function Marketplace({
   plans = [],
   loading = false,
   onSelectPlan,
 }) {
-  const hasPlans = plans.length > 0;
-
   return (
     <div className="marketplace">
+
       <ResultsHeader count={plans.length} />
 
       <div className="marketplace-grid">
-        {loading ? (
-          // 🔄 Estado loading (puedes meter skeletons luego)
+
+        {loading && (
           <p>Cargando planes...</p>
-        ) : hasPlans ? (
+        )}
+
+        {!loading && plans.length === 0 && (
+          <EmptyState />
+        )}
+
+        {!loading && plans.length > 0 && (
           plans.map((plan) => (
             <PlanCard
-              key={plan.id || `${plan.name}-${plan.location}`}
+              key={plan.id}
               plan={plan}
               onClick={() => onSelectPlan?.(plan)}
             />
           ))
-        ) : (
-          <EmptyState />
         )}
+
       </div>
     </div>
   );

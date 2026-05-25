@@ -1,42 +1,59 @@
-import { useMemo } from "react";
-import { scorePlans } from "../core/scoringEngine";
-import plans from "../data/plans.json";
+import { useEffect, useState, useMemo } from "react";
 
 /**
- * 🧠 Hook principal de recomendaciones
- * Conecta:
- * - Filters del usuario
- * - Plans JSON
- * - Scoring engine
+ * 🧠 Hook de recomendaciones (FRONTEND CLEAN)
+ * Solo consume API futura de backend
  */
+const recommendationsApi = {
+  async getRecommendations(filters) {
+    throw new Error("Backend not connected yet");
+  }
+};
+
 export const useRecommendations = (filters = {}) => {
-  const recommendations = useMemo(() => {
-    if (!filters || Object.keys(filters).length === 0) {
-      return plans; // fallback: muestra todo si no hay filtros
-    }
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const scoredPlans = scorePlans(plans, filters);
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    return scoredPlans;
+        const response = await recommendationsApi.getRecommendations(filters);
+
+        setData(response?.recommendations || []);
+      } catch (err) {
+        setError("No se pudieron cargar recomendaciones");
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
   }, [filters]);
 
   /**
-   * 🏆 Top 3 (para UI tipo “wow”)
+   * 🏆 Top 3 (UI convenience only)
    */
   const topRecommendations = useMemo(() => {
-    return recommendations.slice(0, 3);
-  }, [recommendations]);
+    return data.slice(0, 3);
+  }, [data]);
 
   /**
-   * 📊 Best match (el #1)
+   * 📊 Best match (#1)
    */
   const bestMatch = useMemo(() => {
-    return recommendations[0] || null;
-  }, [recommendations]);
+    return data[0] || null;
+  }, [data]);
 
   return {
-    recommendations,
+    recommendations: data,
     topRecommendations,
-    bestMatch
+    bestMatch,
+    loading,
+    error
   };
 };

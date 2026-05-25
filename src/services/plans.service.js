@@ -1,86 +1,162 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// services/plans.service.js
 
-/**
- * Obtener planes recomendados (con IA + filtros)
- */
-export const getRecommendedPlans = async (filters) => {
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+
+// =====================================================
+// 🔌 BASE REQUEST HELPER
+// =====================================================
+const request = async (url, options = {}) => {
   try {
-    const response = await fetch(`${API_URL}/plans/recommendations`, {
-      method: "POST",
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}${url}`, {
       headers: {
         "Content-Type": "application/json",
+
+        ...(token && {
+          Authorization: `Bearer ${token}`,
+        }),
+
+        ...(options.headers || {}),
       },
-      body: JSON.stringify(filters),
+
+      ...options,
     });
 
+    // =====================================================
+    // ❌ ERROR HANDLING
+    // =====================================================
     if (!response.ok) {
-      throw new Error("Error al obtener planes recomendados");
+      let errorMessage = "API Error";
+
+      try {
+        const errorData = await response.json();
+
+        errorMessage =
+          errorData?.message ||
+          errorData?.detail ||
+          errorMessage;
+
+      } catch {
+        errorMessage = await response.text();
+      }
+
+      throw new Error(errorMessage);
     }
 
     return await response.json();
+
   } catch (error) {
-    console.error("Plans error:", error);
+    console.error("❌ API REQUEST ERROR:", error.message);
     throw error;
   }
 };
 
-/**
- * Obtener todos los planes
- */
+
+// =====================================================
+// 🧠 OBTENER RECOMENDACIONES REALES
+// =====================================================
+export const getRecommendedPlans = async (filters = {}) => {
+  try {
+    console.log("🚀 Fetching recommendations");
+
+    const response = await request(
+      "/plans/recommendations",
+      {
+        method: "POST",
+        body: JSON.stringify(filters),
+      }
+    );
+
+    console.log("🟢 Recommendations received");
+
+    return {
+      recommendations:
+        response?.data?.recommendations || [],
+
+      bestMatch:
+        response?.data?.bestMatch || null,
+    };
+
+  } catch (error) {
+    console.error(
+      "❌ getRecommendedPlans ERROR:",
+      error.message
+    );
+
+    return {
+      recommendations: [],
+      bestMatch: null,
+    };
+  }
+};
+
+
+// =====================================================
+// 📦 OBTENER TODOS LOS PLANES
+// =====================================================
 export const getAllPlans = async () => {
   try {
-    const response = await fetch(`${API_URL}/plans`);
+    const response = await request("/plans");
 
-    if (!response.ok) {
-      throw new Error("Error al obtener planes");
-    }
+    return response?.data || [];
 
-    return await response.json();
   } catch (error) {
-    console.error("Plans error:", error);
-    throw error;
+    console.error(
+      "❌ getAllPlans ERROR:",
+      error.message
+    );
+
+    return [];
   }
 };
 
-/**
- * Obtener detalle de un plan por ID
- */
+
+// =====================================================
+// 📍 OBTENER PLAN POR ID
+// =====================================================
 export const getPlanById = async (id) => {
   try {
-    const response = await fetch(`${API_URL}/plans/${id}`);
+    const response = await request(`/plans/${id}`);
 
-    if (!response.ok) {
-      throw new Error("Error al obtener el plan");
-    }
+    return response?.data || null;
 
-    return await response.json();
   } catch (error) {
-    console.error("Plans error:", error);
-    throw error;
+    console.error(
+      "❌ getPlanById ERROR:",
+      error.message
+    );
+
+    return null;
   }
 };
 
-/**
- * (Opcional) guardar plan favorito
- */
-export const saveFavoritePlan = async (planId, token) => {
+
+// =====================================================
+// ⭐ GUARDAR FAVORITO
+// =====================================================
+export const saveFavoritePlan = async (
+  planId
+) => {
   try {
-    const response = await fetch(`${API_URL}/plans/favorite`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ planId }),
-    });
+    const response = await request(
+      "/plans/favorite",
+      {
+        method: "POST",
+        body: JSON.stringify({ planId }),
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error("Error al guardar favorito");
-    }
+    return response;
 
-    return await response.json();
   } catch (error) {
-    console.error("Favorite error:", error);
+    console.error(
+      "❌ saveFavoritePlan ERROR:",
+      error.message
+    );
+
     throw error;
   }
 };

@@ -1,83 +1,284 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MfaQRModal from "./MfaQrModal";
 
 export default function MfaSetup({ user }) {
-  const [openModal, setOpenModal] = useState(false);
-  const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // 🧠 PROTECCIÓN CRÍTICA
+  const [openModal, setOpenModal] =
+    useState(false);
+
+  const [enabled, setEnabled] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  // =========================
+  // PROTECCIÓN
+  // =========================
   if (!user?.id) {
+    console.log(
+      "MFA SETUP -> USER INVÁLIDO"
+    );
+
     return null;
   }
 
   const userId = user.id;
 
+  console.log(
+    "MFA USER:",
+    user
+  );
+
+  console.log(
+    "MFA USER ID:",
+    userId
+  );
+
   // =========================
-  // 🔐 CHECK STATUS MFA
+  // CHECK STATUS
   // =========================
   const checkMfaStatus = async () => {
+
     try {
+
       setLoading(true);
+
       setError("");
 
-      const res = await fetch(
-        `http://localhost:3000/user/${userId}`
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      console.log(
+        "CHECK MFA STATUS"
       );
 
-      if (!res.ok) {
-        throw new Error("Error API");
+      console.log(
+        "TOKEN:",
+        token
+      );
+
+      console.log(
+        "USER ID:",
+        userId
+      );
+
+      const response =
+        await fetch(
+          `http://localhost:3000/api/user/${userId}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      console.log(
+        "STATUS:",
+        response.status
+      );
+
+      const data =
+        await response.json();
+
+      console.log(
+        "DATA:",
+        data
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          "Error API"
+        );
       }
 
-      const data = await res.json();
+      const mfaEnabled = !!(
+        data.user?.mfa_enabled ??
+        data.mfa_enabled
+      );
 
-      setEnabled(!!data?.mfa_enabled);
+      console.log(
+        "MFA ENABLED:",
+        mfaEnabled
+      );
+
+      setEnabled(
+        mfaEnabled
+      );
+
     } catch (err) {
+
+      console.error(
+        "CHECK MFA ERROR"
+      );
+
       console.error(err);
-      setError("Error verificando estado MFA");
+
+      setError(
+        err.message ||
+        "Error verificando MFA"
+      );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
-  return (
-    <div className="mfa-setup-card">
-      <h3>🔐 Autenticación en dos pasos (MFA)</h3>
+  // cargar automático
+  useEffect(() => {
 
-      {/* STATUS */}
+    checkMfaStatus();
+
+  }, []);
+
+  return (
+
+    <div className="mfa-setup-card">
+
+      <h3>
+
+        🔐 Autenticación MFA
+
+      </h3>
+
       <p>
-        Estado:{" "}
+
+        Estado:
+
+        {" "}
+
         {enabled ? (
-          <span style={{ color: "green" }}>Activo</span>
+
+          <span
+            style={{
+              color:
+                "green",
+            }}
+          >
+
+            Activo
+
+          </span>
+
         ) : (
-          <span style={{ color: "red" }}>Desactivado</span>
+
+          <span
+            style={{
+              color:
+                "red",
+            }}
+          >
+
+            Desactivado
+
+          </span>
+
         )}
+
       </p>
 
-      {/* ACTIONS */}
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div
+        style={{
+          display:
+            "flex",
+
+          gap: "10px",
+        }}
+      >
+
         <button
-          onClick={() => setOpenModal(true)}
-          disabled={enabled}
+
+          onClick={() =>
+            setOpenModal(
+              true
+            )
+          }
+
+          disabled={
+            enabled
+          }
+
         >
+
           Configurar MFA
+
         </button>
 
-        <button onClick={checkMfaStatus} disabled={loading}>
-          {loading ? "Verificando..." : "Actualizar estado"}
+        <button
+
+          onClick={
+            checkMfaStatus
+          }
+
+          disabled={
+            loading
+          }
+
+        >
+
+          {
+
+            loading
+
+            ? "Verificando..."
+
+            : "Actualizar"
+
+          }
+
         </button>
+
       </div>
 
-      {/* ERROR */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
 
-      {/* MODAL */}
+        <p
+          style={{
+            color:
+              "red",
+          }}
+        >
+
+          {error}
+
+        </p>
+
+      )}
+
       <MfaQRModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
+
+        isOpen={
+          openModal
+        }
+
+        onClose={() => {
+
+          console.log(
+            "MODAL CERRADO"
+          );
+
+          setOpenModal(
+            false
+          );
+
+          checkMfaStatus();
+
+        }}
+
         userId={userId}
+
       />
+
     </div>
+
   );
 }

@@ -9,56 +9,46 @@ import LoginForm from "../../components/auth/LoginForm";
 import useAuth from "../../hooks/useAuth";
 
 export default function Login() {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
 
-  // errores por campo (más pro)
   const [errors, setErrors] = useState({
     username: "",
     password: "",
     general: "",
   });
 
-  // =========================
-  // VALIDACIONES
-  // =========================
+  /* =========================================================
+     🔐 VALIDACIONES
+  ========================================================= */
   const validateUsername = (username) => {
     const value = username?.trim();
 
     if (!value) return "El usuario es obligatorio";
 
-    // SOLO letras (sin números, sin @, sin símbolos)
     const regex = /^[a-zA-Z]+$/;
 
     if (!regex.test(value)) {
-      return "Solo letras (sin números, sin @ ni símbolos)";
+      return "Solo letras (sin números ni símbolos)";
     }
 
-    if (value.length < 3) {
-      return "Mínimo 3 caracteres";
-    }
-
-    if (value.length > 20) {
-      return "Máximo 20 caracteres";
-    }
+    if (value.length < 3) return "Mínimo 3 caracteres";
+    if (value.length > 20) return "Máximo 20 caracteres";
 
     return "";
   };
 
   const validatePassword = (password) => {
-    const value = password;
-
-    if (!value) return "La contraseña es obligatoria";
-    if (value.length < 6) return "Mínimo 6 caracteres";
-
+    if (!password) return "La contraseña es obligatoria";
+    if (password.length < 6) return "Mínimo 6 caracteres";
     return "";
   };
 
-  // =========================
-  // LOGIN
-  // =========================
+  /* =========================================================
+     🚀 LOGIN FLOW CORREGIDO
+  ========================================================= */
   const handleLogin = async (data) => {
     setLoading(true);
 
@@ -78,13 +68,28 @@ export default function Login() {
     try {
       setErrors({ username: "", password: "", general: "" });
 
-      await login({
+      const result = await login({
         username: data.username.trim(),
         password: data.password,
       });
 
+      /* =========================================================
+         🔐 MFA FLOW (IMPORTANTE)
+      ========================================================= */
+      if (result?.requiresMFA) {
+        console.log("🔐 MFA requerido → se detiene navegación");
+        setLoading(false);
+        return;
+      }
+
+      /* =========================================================
+         🟢 LOGIN COMPLETO → SOLO AQUÍ SE NAVEGA
+      ========================================================= */
       navigate("/explore");
+
     } catch (err) {
+      console.error("❌ LOGIN ERROR:", err);
+
       setErrors({
         username: "",
         password: "",
@@ -99,17 +104,10 @@ export default function Login() {
     navigate("/register");
   };
 
-  const handleLogout = () => {};
-
   return (
     <div className="login-page">
-      {/* NAVBAR */}
-      <Navbar
-        user={user}
-        onLogin={() => {}}
-        onRegister={handleGoRegister}
-        onLogout={handleLogout}
-      />
+      {/* NAVBAR (SIN PROPS - USA AUTHCONTEXT) */}
+      <Navbar />
 
       {/* MAIN */}
       <main className="login-content">

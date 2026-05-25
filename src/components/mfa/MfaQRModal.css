@@ -32,6 +32,9 @@
 
   position: relative;
   text-align: center;
+
+  /* ✅ evita que el contenido se desborde */
+  overflow: hidden;
 }
 
 /* GLOW BORDER */
@@ -56,15 +59,24 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* STEP TEXT */
+/* TEXT */
 .mfa-modal p {
   font-size: 0.9rem;
   color: #bfc7cf;
   margin-bottom: 0.8rem;
 }
 
+/* LOADING TEXT */
+.mfa-modal p:first-of-type {
+  color: var(--cyan-electric);
+}
+
 /* QR IMAGE */
 .mfa-modal img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+
   margin: 1rem auto;
   border-radius: 12px;
 
@@ -122,54 +134,49 @@
 }
 
 /* VERIFY BUTTON */
-.mfa-modal button:not(.close-btn) {
+.mfa-modal button:not(:last-of-type) {
   background: linear-gradient(135deg, var(--purple-core), var(--blue-tech));
   color: white;
 
   box-shadow: 0 0 15px rgba(159, 71, 255, 0.4);
 }
 
-.mfa-modal button:not(.close-btn):hover:not(:disabled) {
-  transform: scale(1.05);
+/* ✅ SIN ZOOM (solo glow) */
+.mfa-modal button:not(:last-of-type):hover:not(:disabled) {
   box-shadow: 0 0 30px rgba(59, 228, 246, 0.6);
 }
 
+/* DISABLED */
 .mfa-modal button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 /* CLOSE BUTTON */
-.mfa-modal .close-btn {
+.mfa-modal button:last-of-type {
   margin-top: 0.8rem;
   background: transparent;
   color: #8a94a3;
 }
 
-.mfa-modal .close-btn:hover {
+.mfa-modal button:last-of-type:hover {
   color: var(--cyan-electric);
 }
 
 /* SUCCESS */
-.mfa-modal h3 {
+.mfa-modal p:has(✅) {
   color: #00ffb3;
-  margin-top: 1rem;
-
   text-shadow: 0 0 10px rgba(0, 255, 180, 0.4);
+  font-weight: 600;
 }
 
-/* ERROR */
-.mfa-modal .error {
+/* ERROR (inline style red) */
+.mfa-modal p[style] {
   margin-top: 0.6rem;
   font-size: 0.85rem;
 
-  color: #ff4d6d;
+  color: #ff4d6d !important;
   text-shadow: 0 0 8px rgba(255, 0, 90, 0.5);
-}
-
-/* LOADING TEXT */
-.mfa-modal .loading {
-  color: var(--cyan-electric);
 }
 
 /* RESPONSIVE */

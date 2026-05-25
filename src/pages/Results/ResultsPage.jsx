@@ -4,32 +4,60 @@ import "./ResultsPage.css";
 
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/footer/Footer";
-
-import { useRecommendations } from "../../hooks/useRecommendations";
 import PlanCard from "../../components/marketplace/PlanCard";
+
+// 🔌 API CONTRACT (sin mock)
+const plansApi = {
+  async getRecommendations(filters) {
+    throw new Error("Backend not connected yet");
+  }
+};
 
 export default function ResultsPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [filters, setFilters] = useState({});
-  const [tokens] = useState(2);
-
-  const { recommendations, bestMatch, loading } =
-    useRecommendations(filters);
+  const [filters, setFilters] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [bestMatch, setBestMatch] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (location.state?.filters) {
       setFilters(location.state.filters);
+    } else {
+      setFilters({});
     }
   }, [location.state]);
 
-  const handleLockedAccess = () => {
-    navigate("/profile"); // mejor UX que alert
-  };
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await plansApi.getRecommendations(filters);
+
+        // backend luego decidirá esto
+        setRecommendations(data?.recommendations || []);
+        setBestMatch(data?.bestMatch || null);
+      } catch (err) {
+        setError("No se pudieron cargar recomendaciones");
+        setRecommendations([]);
+        setBestMatch(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (filters !== null) {
+      loadRecommendations();
+    }
+  }, [filters]);
 
   const goToPlan = (plan) => {
-    navigate(`/plans/${plan.id}`, { state: { plan } });
+    navigate(`/plans/${plan.id}`);
   };
 
   return (
@@ -37,19 +65,13 @@ export default function ResultsPage() {
       <Navbar />
 
       <div className="results-page">
-
         <div className="results-container">
 
-          {/* =========================
-              HERO PRINCIPAL
-          ========================= */}
+          {/* HERO */}
           <section className="results-hero">
-
             <div className="hero-title">
               <h2>Tu plan perfecto</h2>
-              <p>
-                Hemos analizado tu perfil y esto es lo mejor para ti
-              </p>
+              <p>Resultados basados en tus preferencias</p>
             </div>
 
             {loading ? (
@@ -65,69 +87,41 @@ export default function ResultsPage() {
               </div>
             ) : (
               <div className="empty-state">
-                No encontramos un match perfecto aún
+                {error || "No encontramos un match aún"}
               </div>
             )}
           </section>
 
-          {/* =========================
-              EXPLORAR MÁS
-          ========================= */}
+          {/* LISTA */}
           <section className="results-section">
 
             <div className="section-header">
               <h3>Explora más opciones</h3>
-
-              <span className={tokens > 0 ? "tokens-ok" : "tokens-off"}>
-                🪙 {tokens} tokens
-              </span>
             </div>
 
-            {/* LOCKED OVERLAY */}
-            {tokens <= 0 && (
-              <div className="locked-overlay">
-                <div className="locked-box">
-                  <h4>Acceso limitado</h4>
-                  <p>
-                    Necesitas tokens o membresía para ver más planes
-                  </p>
-
-                  <button onClick={handleLockedAccess}>
-                    Mejorar cuenta
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* GRID */}
-            <div className={`results-grid ${tokens <= 0 ? "blur" : ""}`}>
+            <div className="results-grid">
 
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="card-skeleton" />
                 ))
-              ) : recommendations?.length > 0 ? (
+              ) : recommendations.length > 0 ? (
                 recommendations.map((plan) => (
                   <div
                     key={plan.id}
                     className="result-wrapper"
-                    onClick={() =>
-                      tokens > 0
-                        ? goToPlan(plan)
-                        : handleLockedAccess()
-                    }
+                    onClick={() => goToPlan(plan)}
                   >
                     <PlanCard plan={plan} />
                   </div>
                 ))
               ) : (
                 <div className="empty-state full">
-                  No hay más planes disponibles
+                  No hay planes disponibles
                 </div>
               )}
 
             </div>
-
           </section>
 
         </div>

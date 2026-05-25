@@ -1,125 +1,251 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
+console.log("🌐 [API INIT]", API_URL);
 
 /**
- * 🔐 Obtener token seguro
+ * =========================
+ * 🔐 TOKEN READER
+ * =========================
  */
 const getToken = () => {
-  return localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+
+  console.log("🔑 TOKEN EN LOCALSTORAGE:");
+  console.log(token);
+
+  console.log("📦 LOCALSTORAGE COMPLETO:");
+  console.log({
+    token: localStorage.getItem("token"),
+    user: localStorage.getItem("user"),
+    tempToken: localStorage.getItem("tempToken"),
+    mfaTemp: sessionStorage.getItem("mfa_tempToken"),
+    mfaUser: sessionStorage.getItem("mfa_userId"),
+  });
+
+  return token;
 };
 
 /**
- * 🔐 Headers centralizados
+ * =========================
+ * 🔐 HEADERS
+ * =========================
  */
-const getHeaders = (isFormData = false, requireAuth = false) => {
+const getHeaders = (
+  isFormData = false,
+  requireAuth = false
+) => {
   const token = getToken();
 
   const headers = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(isFormData
+      ? {}
+      : {
+          "Content-Type": "application/json",
+        }),
   };
 
-  if (requireAuth && token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (requireAuth) {
+    console.log(
+      "🟡 AUTH REQUERIDO → token:",
+      token
+    );
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+
+      console.log(
+        "🟢 AUTH HEADER ENVIADO:",
+        headers.Authorization.slice(0, 40) + "..."
+      );
+    } else {
+      console.log("🔴 NO HAY TOKEN");
+    }
   }
 
   return headers;
 };
 
 /**
- * ⏱️ FETCH CON TIMEOUT
+ * =========================
+ * ⏱️ FETCH
+ * =========================
  */
-const fetchWithTimeout = async (url, options, timeout = 15000) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+const fetchWithTimeout = async (
+  url,
+  options,
+  timeout = 15000
+) => {
+  const controller =
+    new AbortController();
+
+  const id = setTimeout(
+    () => controller.abort(),
+    timeout
+  );
 
   try {
+    console.log(
+      "🌐 [REQUEST]",
+      {
+        url,
+        method:
+          options?.method,
+        body:
+          options?.body,
+      }
+    );
+
     const res = await fetch(url, {
       ...options,
-      signal: controller.signal,
+      signal:
+        controller.signal,
     });
+
+    console.log(
+      "📡 [STATUS]",
+      res.status
+    );
 
     return res;
   } catch (err) {
-    console.error("❌ NETWORK/TIMEOUT ERROR:", err.message);
-    throw new Error("Error de red o timeout");
+    console.error(
+      "❌ NETWORK ERROR",
+      err
+    );
+
+    throw new Error(
+      "Error de red o timeout"
+    );
   } finally {
     clearTimeout(id);
   }
 };
 
 /**
- * 📦 RESPONSE HANDLER
+ * =========================
+ * 📦 RESPONSE
+ * =========================
  */
-const handleResponse = async (response) => {
-  const text = await response.text();
+const handleResponse =
+  async (response) => {
+    const text =
+      await response.text();
 
-  let data;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
+    let data;
 
-  if (!response.ok) {
-    console.error("❌ ERROR RESPONSE:", response.status, data);
-
-    if (response.status === 401) {
-      console.warn("🚨 TOKEN INVÁLIDO O AUSENTE");
+    try {
+      data = text
+        ? JSON.parse(text)
+        : null;
+    } catch {
+      data = text;
     }
 
-    throw new Error(
-      `HTTP ${response.status} - ${data?.message || "Error en request"}`
+    console.log(
+      "📦 [RAW RESPONSE]",
+      {
+        status:
+          response.status,
+        ok: response.ok,
+        data,
+      }
     );
-  }
 
-  return data;
-};
+    if (!response.ok) {
+      console.error(
+        "❌ API ERROR",
+        data
+      );
+
+      throw new Error(
+        `HTTP ${response.status} - ${
+          data?.message ||
+          "Error request"
+        }`
+      );
+    }
+
+    console.log(
+      "✅ SUCCESS",
+      data
+    );
+
+    return data;
+  };
 
 /**
  * =========================
- * 🌐 BASE METHODS
+ * 🌐 METHODS
  * =========================
  */
 
-export const get = async (endpoint, requireAuth = true) => {
-  const token = getToken();
-
-  console.log("➡️ GET:", endpoint);
-  console.log("🔐 TOKEN:", token);
-
-  const res = await fetchWithTimeout(`${API_URL}${endpoint}`, {
-    method: "GET",
-    headers: getHeaders(false, requireAuth),
-  });
-
-  return handleResponse(res);
-};
-
-export const post = async (endpoint, body, requireAuth = true) => {
-  const token = getToken();
-
-  console.log("➡️ POST:", endpoint);
-  console.log("🔐 TOKEN:", token);
-
-  const res = await fetchWithTimeout(`${API_URL}${endpoint}`, {
-    method: "POST",
-    headers: getHeaders(false, requireAuth),
-    body: JSON.stringify(body),
-  });
+export const get = async (
+  endpoint,
+  requireAuth = true
+) => {
+  const res =
+    await fetchWithTimeout(
+      `${API_URL}${endpoint}`,
+      {
+        method: "GET",
+        headers:
+          getHeaders(
+            false,
+            requireAuth
+          ),
+      }
+    );
 
   return handleResponse(res);
 };
 
-export const patch = async (endpoint, body, requireAuth = true) => {
-  const token = getToken();
+export const post = async (
+  endpoint,
+  body,
+  requireAuth = true
+) => {
+  const res =
+    await fetchWithTimeout(
+      `${API_URL}${endpoint}`,
+      {
+        method: "POST",
+        headers:
+          getHeaders(
+            false,
+            requireAuth
+          ),
+        body:
+          JSON.stringify(
+            body
+          ),
+      }
+    );
 
-  console.log("➡️ PATCH:", endpoint);
-  console.log("🔐 TOKEN:", token);
+  return handleResponse(res);
+};
 
-  const res = await fetchWithTimeout(`${API_URL}${endpoint}`, {
-    method: "PATCH",
-    headers: getHeaders(false, requireAuth),
-    body: JSON.stringify(body),
-  });
+export const patch = async (
+  endpoint,
+  body,
+  requireAuth = true
+) => {
+  const res =
+    await fetchWithTimeout(
+      `${API_URL}${endpoint}`,
+      {
+        method: "PATCH",
+        headers:
+          getHeaders(
+            false,
+            requireAuth
+          ),
+        body:
+          JSON.stringify(
+            body
+          ),
+      }
+    );
 
   return handleResponse(res);
 };
@@ -130,13 +256,31 @@ export const patch = async (endpoint, body, requireAuth = true) => {
  * =========================
  */
 
-export const getCurrentUser = async () => {
-  return await get("/user", true);
-};
+export const getCurrentUser =
+  async () => {
+    console.log(
+      "👤 GET USER"
+    );
 
-export const updateUser = async (data) => {
-  return await patch("/user", data, true);
-};
+    return get(
+      "/users",
+      true
+    );
+  };
+
+export const updateUser =
+  async (data) => {
+    console.log(
+      "👤 UPDATE USER",
+      data
+    );
+
+    return patch(
+      "/users",
+      data,
+      true
+    );
+  };
 
 /**
  * =========================
@@ -144,48 +288,45 @@ export const updateUser = async (data) => {
  * =========================
  */
 
-export const saveUserProfile = async (data) => {
-  return await post("/profile", data, true);
-};
+export const saveUserProfile =
+  async (data) => {
+    console.log(
+      "🌍 SAVE PROFILE",
+      data
+    );
 
-export const getUserProfile = async () => {
-  return await get("/profile", true);
-};
+    return post(
+      "/profiles",
+      data,
+      true
+    );
+  };
 
-export const updateUserProfile = async (data) => {
-  return await patch("/profile", data, true);
-};
+export const getUserProfile =
+  async () => {
+    console.log(
+      "🌍 GET PROFILE"
+    );
 
-/**
- * =========================
- * 🧠 RECOMMENDATIONS
- * =========================
- */
+    return get(
+      "/profiles",
+      true
+    );
+  };
 
-export const getRecommendations = async (filters, plans = []) => {
-  const scored = plans.map((plan) => {
-    let score = 0;
+export const updateUserProfile =
+  async (data) => {
+    console.log(
+      "🌍 UPDATE PROFILE",
+      data
+    );
 
-    if (plan.profile_match?.budget === filters.budget) score += 3;
-
-    const matchInterest =
-      plan.profile_match?.interests?.filter((i) =>
-        filters.interests?.includes(i)
-      )?.length || 0;
-
-    score += matchInterest * 5;
-
-    if (plan.profile_match?.companions?.includes(filters.companion)) {
-      score += 2;
-    }
-
-    if (plan.safety?.level === "bajo") score += 3;
-
-    return { ...plan, score };
-  });
-
-  return scored.sort((a, b) => b.score - a.score);
-};
+    return patch(
+      "/profiles",
+      data,
+      true
+    );
+  };
 
 /**
  * =========================
@@ -193,21 +334,44 @@ export const getRecommendations = async (filters, plans = []) => {
  * =========================
  */
 
-export const uploadAvatar = async (file) => {
-  const token = getToken();
+export const uploadAvatar =
+  async (file) => {
+    const token =
+      getToken();
 
-  console.log("➡️ UPLOAD AVATAR");
+    const formData =
+      new FormData();
 
-  const formData = new FormData();
-  formData.append("avatar", file);
+    formData.append(
+      "avatar",
+      file
+    );
 
-  const res = await fetchWithTimeout(`${API_URL}/user/avatar`, {
-    method: "POST",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: formData,
-  });
+    const res =
+      await fetchWithTimeout(
+        `${API_URL}/users/avatar`,
+        {
+          method: "POST",
+          headers: token
+            ? {
+                Authorization:
+                  `Bearer ${token}`,
+              }
+            : {},
+          body:
+            formData,
+        }
+      );
 
-  return handleResponse(res);
-};
+    return handleResponse(
+      res
+    );
+  };
+
+/**
+ * =========================
+ * EXPORT DEFAULT
+ * =========================
+ */
+
+export default API_URL;
