@@ -13,7 +13,7 @@ function EmptyState() {
 }
 
 /**
- * 📊 Header simple (sin useMemo innecesario)
+ * 📊 Header
  */
 function ResultsHeader({ count }) {
   let label = "Sin resultados";
@@ -30,15 +30,11 @@ function ResultsHeader({ count }) {
 }
 
 /**
- * 🧭 Marketplace (UI only)
- * - Sin mock
- * - Sin lógica de negocio
- * - Solo render
+ * 🧭 Marketplace (UI pure)
  */
 export default function Marketplace({
   plans = [],
-  loading = false,
-  onSelectPlan,
+  loading = false
 }) {
   return (
     <div className="marketplace">
@@ -58,9 +54,8 @@ export default function Marketplace({
         {!loading && plans.length > 0 && (
           plans.map((plan) => (
             <PlanCard
-              key={plan.id}
+              key={plan.plan_turistico_bogota}
               plan={plan}
-              onClick={() => onSelectPlan?.(plan)}
             />
           ))
         )}

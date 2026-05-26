@@ -7,8 +7,8 @@ export default function PlanCard({ plan, highlight = false }) {
   if (!plan) return null;
 
   const handleClick = () => {
-    navigate(`/plans/${plan.id}`, {
-      state: { plan }
+    navigate("/plan-detail", {
+      state: { plan },
     });
   };
 
@@ -17,80 +17,32 @@ export default function PlanCard({ plan, highlight = false }) {
       className={`plan-card ${highlight ? "highlight" : ""}`}
       onClick={handleClick}
     >
-
-      {/* =========================
-          🧠 HEADER (GANCHO)
-      ========================= */}
+      {/* HEADER */}
       <div className="plan-card-header">
-        <h3>{plan.title}</h3>
+        <h3>
+          {plan.plan_turistico_bogota || plan.title || "Plan sin título"}
+        </h3>
 
         {plan.score !== undefined && (
-          <div className="score-badge">
-            ⭐ {plan.score}
-          </div>
+          <div className="score-badge">⭐ {plan.score}</div>
         )}
       </div>
 
-      {/* =========================
-          📍 LOCATION
-      ========================= */}
+      {/* CONTEXTO */}
       <p className="location">
-        📍 {plan.location?.name}, {plan.city}
+        🎯 {plan.tipo_viaje || "N/A"} · 👥 {plan.compania || "N/A"}
       </p>
 
-      {/* =========================
-          🧠 AI SHORT INSIGHT (NUEVO)
-      ========================= */}
-      {plan.ai_context?.summary && (
-        <p className="ai-preview">
-          {plan.ai_context.summary}
-        </p>
-      )}
-
-      {/* =========================
-          ✨ EXPERIENCE (HOOK)
-      ========================= */}
-      <p className="description">
-        {plan.experience?.description}
-      </p>
-
-      {/* =========================
-          ✨ HIGHLIGHTS (VISUAL KEY SELL)
-      ========================= */}
-      <div className="highlights">
-        {plan.experience?.highlights?.slice(0, 2).map((h, i) => (
-          <span key={i} className="highlight-item">
-            ✨ {h}
-          </span>
-        ))}
-      </div>
-
-      {/* =========================
-          💰 BUDGET (DECISION FACTOR)
-      ========================= */}
+      {/* BUDGET */}
       <div className="budget">
-        💰 ~ {plan.budget?.estimated_total?.toLocaleString()} COP
+        💰 {plan.presupuesto_cop?.toUpperCase?.() || "SIN PRESUPUESTO"}
       </div>
 
-      {/* =========================
-          ⚠️ FLAGS (SOFT WARNING)
-      ========================= */}
-      {plan.flags?.length > 0 && (
-        <div className="flags">
-          <span className={`flag ${plan.flags[0].type}`}>
-            {plan.flags[0].message}
-          </span>
-        </div>
-      )}
-
-      {/* =========================
-          🧭 META INFO (LIGHT)
-      ========================= */}
+      {/* CLIMA + DURACIÓN */}
       <div className="meta">
-        <span>⏱ {plan.routes?.[0]?.duration_min} min</span>
-        <span>📊 {plan.safety?.level}</span>
+        <span>🌤 {plan.clima_preferido || "N/A"}</span>
+        <span>⏱ {plan.duracion || "N/A"}</span>
       </div>
-
     </div>
   );
 }

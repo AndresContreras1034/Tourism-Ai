@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ResultsPage.css";
 
@@ -6,58 +6,121 @@ import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/footer/Footer";
 import PlanCard from "../../components/marketplace/PlanCard";
 
-// 🔌 API CONTRACT (sin mock)
-const plansApi = {
+import { AuthContext } from "../../context/AuthContext";
+
+// =====================================================
+// 🔌 API CALL
+// =====================================================
+const plansApi = (token) => ({
   async getRecommendations(filters) {
-    throw new Error("Backend not connected yet");
-  }
-};
+    const res = await fetch(
+      "http://localhost:3000/api/ai/recommendations",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(filters),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Backend error");
+    }
+
+    return data;
+  },
+});
 
 export default function ResultsPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [filters, setFilters] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
-  const [bestMatch, setBestMatch] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, token, setUser } = useContext(AuthContext);
 
+  const [filters, setFilters]               = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [bestMatch, setBestMatch]           = useState(null);
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState(null);
+
+  // =====================================================
+  // 📦 LOAD FILTERS
+  // =====================================================
   useEffect(() => {
     if (location.state?.filters) {
       setFilters(location.state.filters);
     } else {
-      setFilters({});
+      const cached = localStorage.getItem("userProfile");
+      setFilters(cached ? JSON.parse(cached) : {});
     }
   }, [location.state]);
 
-  useEffect(() => {
-    const loadRecommendations = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // =====================================================
+  // 🚨 CHECK VISUAL
+  // =====================================================
+  const isOutOfTokens = user?.tokens !== undefined && user?.tokens <= 0;
 
-        const data = await plansApi.getRecommendations(filters);
-
-        // backend luego decidirá esto
-        setRecommendations(data?.recommendations || []);
-        setBestMatch(data?.bestMatch || null);
-      } catch (err) {
-        setError("No se pudieron cargar recomendaciones");
-        setRecommendations([]);
-        setBestMatch(null);
-      } finally {
-        setLoading(false);
+  // =====================================================
+  // 🚀 GENERAR
+  // =====================================================
+  const handleGenerate = async () => {
+    try {
+      if (!token) {
+        setError("No estás autenticado");
+        return;
       }
-    };
 
-    if (filters !== null) {
-      loadRecommendations();
+      if (isOutOfTokens) {
+        navigate("/payment");   // ✅ sin "s"
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      const api  = plansApi(token);
+      const data = await api.getRecommendations(filters);
+
+      setRecommendations(data?.data?.recommendations || []);
+      setBestMatch(data?.data?.bestMatch || null);
+
+      // =================================================
+      // 💰 ACTUALIZAR TOKENS
+      // =================================================
+      if (data?.remainingTokens !== undefined) {
+        const newTokens = data.remainingTokens;
+
+        setUser((prev) => ({
+          ...prev,
+          tokens: newTokens,
+        }));
+
+        // 🔥 REDIRECT SOLO AQUÍ
+        if (newTokens <= 0) {
+          navigate("/payment", { replace: true });  // ✅ sin "s"
+        }
+      }
+
+    } catch (err) {
+      setError(err.message || "No se pudieron generar recomendaciones");
+      setRecommendations([]);
+      setBestMatch(null);
+    } finally {
+      setLoading(false);
     }
-  }, [filters]);
+  };
 
+  // =====================================================
+  // 🧭 NAV
+  // =====================================================
   const goToPlan = (plan) => {
-    navigate(`/plans/${plan.id}`);
+    navigate(`/plans/${plan.plan_turistico_bogota}`, {
+      state: { plan },
+    });
   };
 
   return (
@@ -69,27 +132,32 @@ export default function ResultsPage() {
 
           {/* HERO */}
           <section className="results-hero">
+
             <div className="hero-title">
               <h2>Tu plan perfecto</h2>
-              <p>Resultados basados en tus preferencias</p>
+              <p>Genera recomendaciones personalizadas con IA</p>
             </div>
 
+            <button
+              className="generate-btn"
+              onClick={handleGenerate}
+              disabled={loading || !token}
+            >
+              {loading ? "Generando..." : "✨ Generar recomendaciones"}
+            </button>
+
             {loading ? (
-              <div className="hero-skeleton">
-                <div className="skeleton-card" />
-              </div>
+              <div className="hero-skeleton" />
             ) : bestMatch ? (
-              <div
-                className="hero-card"
-                onClick={() => goToPlan(bestMatch)}
-              >
+              <div className="hero-card" onClick={() => goToPlan(bestMatch)}>
                 <PlanCard plan={bestMatch} highlight />
               </div>
             ) : (
               <div className="empty-state">
-                {error || "No encontramos un match aún"}
+                {error || "Aún no has generado recomendaciones"}
               </div>
             )}
+
           </section>
 
           {/* LISTA */}
@@ -100,16 +168,14 @@ export default function ResultsPage() {
             </div>
 
             <div className="results-grid">
-
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="card-skeleton" />
                 ))
               ) : recommendations.length > 0 ? (
-                recommendations.map((plan) => (
+                recommendations.map((plan, i) => (
                   <div
-                    key={plan.id}
-                    className="result-wrapper"
+                    key={plan.plan_turistico_bogota || i}
                     onClick={() => goToPlan(plan)}
                   >
                     <PlanCard plan={plan} />
@@ -120,8 +186,8 @@ export default function ResultsPage() {
                   No hay planes disponibles
                 </div>
               )}
-
             </div>
+
           </section>
 
         </div>

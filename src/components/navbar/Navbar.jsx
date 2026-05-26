@@ -13,20 +13,19 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, logout, loading, syncSession } = useContext(AuthContext);
-
-  /* =========================================================
-     🔥 FIX CLAVE: sincroniza cuando el navbar carga
-  ========================================================= */
+  const { user, logout, loading, syncSession, refreshUser } = useContext(AuthContext);
+console.log("🪙 USER COMPLETO:", JSON.stringify(user));
+  // =========================================================
+  // 🔄 SINCRONIZACIÓN INICIAL
+  // =========================================================
   useEffect(() => {
-    if (!user) {
-      syncSession?.(); // 🔥 fuerza lectura localStorage si venimos de MFA
+    if (user) {
+      refreshUser?.();   // 👈 trae tokens frescos del backend
+    } else {
+      syncSession?.();
     }
   }, []);
 
-  /* =========================================================
-     ⏳ EVITA RENDER INCONSISTENTE
-  ========================================================= */
   if (loading) return null;
 
   const handleNavigate = (path) => {
@@ -77,15 +76,17 @@ export default function Navbar() {
         {/* ================= AUTH ================= */}
         <div className="navbar-auth">
 
-          {/* TOKENS */}
+          {/* ================= TOKENS ================= */}
           {user && (
             <div className="navbar-tokens">
               <img src={tokenImg} alt="tokens" className="token-icon" />
-              <span className="token-count">{user?.tokens ?? 0}</span>
+              <span className="token-count">
+                {user?.tokens ?? 0}
+              </span>
             </div>
           )}
 
-          {/* NO LOGUEADO */}
+          {/* ================= NOT LOGGED ================= */}
           {!user ? (
             <>
               <button className="btn-login" onClick={() => navigate("/login")}>
@@ -97,9 +98,11 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            /* LOGUEADO */
+            /* ================= LOGGED ================= */
             <div className="navbar-user">
-              <span className="user-name">👋 Hola, {firstName}</span>
+              <span className="user-name">
+                👋 Hola, {firstName}
+              </span>
 
               <button
                 className="btn-logout"
