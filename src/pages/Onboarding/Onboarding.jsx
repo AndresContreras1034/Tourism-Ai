@@ -1,11 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-
 import FiltersForm from "../../components/filters/FiltersForm";
 import { AuthContext } from "../../context/AuthContext";
 
-export default function Onboarding() {
-  const navigate = useNavigate();
+export default function Onboarding({ onComplete }) {
   const { user, setUser } = useContext(AuthContext);
 
   return (
@@ -14,22 +11,15 @@ export default function Onboarding() {
         onSuccess={(profileData) => {
           console.log("✅ Perfil creado:", profileData);
 
-          // 🧠 actualizar contexto global
           setUser({
             ...user,
             profile: profileData,
           });
 
-          // 💾 opcional backup local
-          localStorage.setItem(
-            "userProfile",
-            JSON.stringify(profileData)
-          );
+          localStorage.setItem("userProfile", JSON.stringify(profileData));
 
-          // 🚀 ir al home (hero)
-          navigate("/", {
-            state: { fromOnboarding: true },
-          });
+          // 🔥 abre el modal MFA en lugar de navegar al home
+          onComplete?.();
         }}
       />
     </div>

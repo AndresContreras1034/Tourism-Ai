@@ -32,16 +32,13 @@ export default function AppRouter() {
   const openVerify = (userId) => setMfaState({ qr: false, setup: false, verify: true,  userId });
   const closeAll   = ()       => setMfaState({ qr: false, setup: false, verify: false, userId: null });
 
-  // =========================================================
-  // 🚨 REDIRECT CUANDO SE ACABAN LOS TOKENS (SIN LOOP)
-  // =========================================================
   const tokens = user?.tokens ?? null;
 
   useEffect(() => {
     if (
       tokens !== null &&
       tokens <= 0 &&
-      window.location.pathname !== "/payment"  // 👈 evita el loop
+      window.location.pathname !== "/payment"
     ) {
       window.location.replace("/payment");
     }
@@ -58,8 +55,13 @@ export default function AppRouter() {
         <Route path="/login"    element={<Login openMfaVerify={openVerify} />} />
         <Route path="/register" element={<Register openMfaQr={openQr} />} />
 
-        {/* ONBOARDING */}
-        <Route path="/onboarding" element={<Onboarding />} />
+        {/* ONBOARDING 🔥 pasa openQr como onComplete */}
+        <Route
+          path="/onboarding"
+          element={
+            <Onboarding onComplete={() => openQr(user?.id)} />
+          }
+        />
 
         {/* CHAT */}
         <Route path="/chat" element={<Chat />} />

@@ -78,7 +78,7 @@ export default function FiltersForm() {
       localStorage.setItem("userProfile", JSON.stringify(payload));
 
       // 🚀 3. IR AL HERO (FLUJO FINAL)
-      navigate("/", {
+      navigate("/mfa", {
         state: {
           onboardingCompleted: true,
         },
