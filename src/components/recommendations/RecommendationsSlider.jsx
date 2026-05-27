@@ -33,12 +33,25 @@ export default function RecommendationsSlider() {
   // =========================
   useEffect(() => {
     const loadReviews = async () => {
-      setLoading(true);
+      try {
+        console.log("🟡 [REVIEWS] Fetching from API...");
 
-      const data = await getReviews();
-      setReviews(data);
+        setLoading(true);
 
-      setLoading(false);
+        const data = await getReviews();
+
+        console.log("🟢 [REVIEWS] RAW RESPONSE:", data);
+        console.log("📦 [REVIEWS] TYPE:", typeof data);
+        console.log("📊 [REVIEWS] LENGTH:", data?.length);
+
+        setReviews(data || []);
+
+        console.log("✅ [REVIEWS] State updated");
+      } catch (err) {
+        console.error("🔴 [REVIEWS] ERROR FETCHING:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadReviews();
@@ -48,16 +61,36 @@ export default function RecommendationsSlider() {
   // 📤 ADD REVIEW (POST DB)
   // =========================
   const handleAddReview = async (newReview) => {
-    const created = await createReview(newReview);
+    try {
+      console.log("🟡 [CREATE REVIEW] Sending:", newReview);
 
-    if (created) {
-      setReviews((prev) => [created, ...prev]);
-      setOpen(false); // cerrar modal
+      const created = await createReview(newReview);
+
+      console.log("🟢 [CREATE REVIEW] Response:", created);
+
+      if (created) {
+        setReviews((prev) => {
+          const updated = [created, ...prev];
+          console.log("📦 [REVIEWS] After insert:", updated);
+          return updated;
+        });
+
+        setOpen(false);
+      }
+    } catch (err) {
+      console.error("🔴 [CREATE REVIEW] ERROR:", err);
     }
   };
 
   // 🔥 loop infinito visual
   const loopReviews = [...reviews, ...reviews];
+
+  // =========================
+  // 🔍 DEBUG RENDER STATE
+  // =========================
+  console.log("🧠 [RENDER] loading:", loading);
+  console.log("🧠 [RENDER] reviews:", reviews);
+  console.log("🧠 [RENDER] loopReviews:", loopReviews);
 
   return (
     <div className="slider-wrapper">
@@ -85,35 +118,39 @@ export default function RecommendationsSlider() {
         <div className="carousel">
           <div className="carousel-track">
 
-            {loopReviews.map((r, index) => (
-              <motion.div
-                className="card"
-                key={`${r.id}-${index}`}
-                whileHover={{ scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
+            {loopReviews.map((r, index) => {
+              console.log("🎯 [CARD RENDER]", r);
 
-                {/* HEADER */}
-                <div className="card-header">
-                  <div className="avatar">
-                    {r.name?.charAt(0).toUpperCase()}
+              return (
+                <motion.div
+                  className="card"
+                  key={`${r.id}-${index}`}
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+
+                  {/* HEADER */}
+                  <div className="card-header">
+                    <div className="avatar">
+                      {r.name?.charAt(0).toUpperCase()}
+                    </div>
+
+                    <div className="user-info">
+                      <h4>
+                        {r.flag || "🌍"} {r.name}
+                      </h4>
+                      <span className="country">{r.country}</span>
+                    </div>
                   </div>
 
-                  <div className="user-info">
-                    <h4>
-                      {r.flag || "🌍"} {r.name}
-                    </h4>
-                    <span className="country">{r.country}</span>
-                  </div>
-                </div>
+                  {/* STARS */}
+                  <Stars rating={r.rating} />
 
-                {/* STARS */}
-                <Stars rating={r.rating} />
-
-                {/* COMMENT */}
-                <p className="comment">“{r.comment}”</p>
-              </motion.div>
-            ))}
+                  {/* COMMENT */}
+                  <p className="comment">“{r.comment}”</p>
+                </motion.div>
+              );
+            })}
 
           </div>
         </div>
@@ -124,7 +161,10 @@ export default function RecommendationsSlider() {
       ========================= */}
       <motion.button
         className="add-btn"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          console.log("🟣 Open modal");
+          setOpen(true);
+        }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -136,7 +176,10 @@ export default function RecommendationsSlider() {
       ========================= */}
       <ReviewModal
         isOpen={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          console.log("🔵 Close modal");
+          setOpen(false);
+        }}
         onSubmit={handleAddReview}
       />
 

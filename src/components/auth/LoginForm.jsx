@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // 👈 useLocation
 
 import { loginUser, verifyMfaLogin } from "../../services/auth.service";
 import { AuthContext } from "../../context/AuthContext";
@@ -27,22 +27,33 @@ const validateMfaCode = (code) => {
 };
 
 export default function LoginForm() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const location  = useLocation(); // 👈 nuevo
   const { login, completeMfaLogin } = useContext(AuthContext);
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm]     = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const [mfaUserId, setMfaUserId] = useState(null);
-  const [showQR, setShowQR] = useState(false);
+  const [mfaUserId, setMfaUserId]   = useState(null);
+  const [showQR, setShowQR]         = useState(false);
   const [showVerify, setShowVerify] = useState(false);
-  const [mfaCode, setMfaCode] = useState("");
+  const [mfaCode, setMfaCode]       = useState("");
 
   const normalizedEmail = useMemo(
     () => form.email.trim().toLowerCase(),
     [form.email]
   );
+
+  /* =========================================================
+     🔀 HELPER: decide a dónde navegar post-login
+  ========================================================= */
+  const resolveRedirect = (role) => {
+    const from = location.state?.from;
+    if (from) return from;
+    if (role === "admin" || role === "superadmin") return "/admin";
+    return "/";
+  };
 
   /* =========================================================
      LOGIN
@@ -52,7 +63,7 @@ export default function LoginForm() {
     if (loading) return;
 
     const emailError = validateEmail(form.email);
-    const passError = validatePassword(form.password);
+    const passError  = validatePassword(form.password);
 
     if (emailError || passError) {
       setErrors({ email: emailError, password: passError });
@@ -64,7 +75,7 @@ export default function LoginForm() {
       setErrors({});
 
       const response = await loginUser({
-        email: normalizedEmail,
+        email:    normalizedEmail,
         password: form.password,
       });
 
@@ -88,11 +99,11 @@ export default function LoginForm() {
         return;
       }
 
-      // 🔥 LOGIN NORMAL
+      // 🟢 LOGIN NORMAL (sin MFA)
       login(response);
 
-      // 🔥 sincronización inmediata (clave navbar)
-      setTimeout(() => navigate("/"), 0);
+      const redirect = resolveRedirect(response.user?.role); // 👈
+      setTimeout(() => navigate(redirect, { replace: true }), 0);
 
     } catch (err) {
       console.error("❌ LOGIN ERROR:", err);
@@ -123,20 +134,16 @@ export default function LoginForm() {
 
       console.log("🔐 VERIFY MFA LOGIN", { userId, token: mfaCode });
 
-      const response = await verifyMfaLogin({
-        userId,
-        token: mfaCode,
-      });
+      const response = await verifyMfaLogin({ userId, token: mfaCode });
 
       console.log("📦 MFA RESPONSE:", response);
 
-      // 🔥 NORMALIZAR SIEMPRE
       const user =
-        response.user ||
+        response.user      ||
         response.data?.user;
 
       const token =
-        response.token ||
+        response.token      ||
         response.accessToken ||
         response.data?.token;
 
@@ -144,19 +151,13 @@ export default function LoginForm() {
         throw new Error("Backend no devolvió user/token");
       }
 
-      const finalPayload = { user, token };
-
-      // 🔥 ESTA ES LA CLAVE REAL DEL FIX NAVBAR
-      completeMfaLogin(finalPayload);
+      completeMfaLogin({ user, token });
 
       localStorage.removeItem("tempToken");
-
       setShowVerify(false);
 
-      // 🔥 forzar re-render antes del redirect
-      setTimeout(() => {
-        navigate("/");
-      }, 50);
+      const redirect = resolveRedirect(user?.role); // 👈
+      setTimeout(() => navigate(redirect, { replace: true }), 50);
 
     } catch (err) {
       console.error("❌ MFA ERROR:", err);
@@ -198,9 +199,7 @@ export default function LoginForm() {
             <input
               value={mfaCode}
               onChange={(e) =>
-                setMfaCode(
-                  e.target.value.replace(/\D/g, "").slice(0, 6)
-                )
+                setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))
               }
               placeholder="Código 6 dígitos"
               maxLength={6}
@@ -218,24 +217,20 @@ export default function LoginForm() {
       {/* LOGIN FORM */}
       <form onSubmit={handleSubmit} className="login-form">
 
-        {errors.general && <div className="error-box">{errors.general}</div>}
-        {errors.email && <div className="error-box">{errors.email}</div>}
+        {errors.general  && <div className="error-box">{errors.general}</div>}
+        {errors.email    && <div className="error-box">{errors.email}</div>}
         {errors.password && <div className="error-box">{errors.password}</div>}
 
         <input
           value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
           placeholder="Email"
         />
 
         <input
           type="password"
           value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Password"
         />
 

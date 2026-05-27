@@ -1,4 +1,8 @@
-export default function SeguridadDashboard() {
+import { useState } from "react";
+
+export default function AnalyticsDashboard() {
+  const [loading, setLoading] = useState(true);
+
   return (
     <section
       style={{
@@ -7,13 +11,14 @@ export default function SeguridadDashboard() {
         display: "flex",
         flexDirection: "column",
         gap: "18px",
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+        fontFamily:
+          "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
       }}
     >
       {/* HEADER */}
       <div style={{ textAlign: "center" }}>
         <h2 style={{ fontSize: "28px", marginBottom: "8px" }}>
-          Seguridad en Bogotá
+          Dashboard de análisis
         </h2>
 
         <p
@@ -24,8 +29,9 @@ export default function SeguridadDashboard() {
             lineHeight: "1.5",
           }}
         >
-          Claudia analiza datos oficiales de criminalidad en Colombia para ayudarte
-          a tomar decisiones más seguras en tus desplazamientos y planes.
+          Este panel centraliza métricas clave como planes activos,
+          presupuesto, rendimiento, rating y comportamiento general de la
+          plataforma para la toma de decisiones.
         </p>
       </div>
 
@@ -33,24 +39,43 @@ export default function SeguridadDashboard() {
       <div
         style={{
           width: "100%",
-          aspectRatio: "1512 / 945",
+          aspectRatio: "16 / 9",
           maxHeight: "80vh",
           borderRadius: "14px",
           overflow: "hidden",
           boxShadow: "0 12px 30px rgba(0,0,0,0.18)",
-          background: "transparent",
+          position: "relative",
+          background: "#0f0f14",
         }}
       >
+        {loading && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: "14px",
+              opacity: 0.7,
+            }}
+          >
+            Cargando dashboard...
+          </div>
+        )}
+
         <iframe
-          title="Dashboard Seguridad Bogotá"
+          title="Dashboard de análisis"
           src="https://app.powerbi.com/view?r=eyJrIjoiNmZiYzgyMTYtZDIzYy00ZDg2LTgzZTgtZmIwMTBhMThlNjcwIiwidCI6Ijc5ODcxZWIxLTYwOTYtNDJiZi05OGVmLWI0ZjNlNGVmODMxOCIsImMiOjR9"
           style={{ width: "100%", height: "100%", border: "none" }}
           allowFullScreen
           loading="lazy"
+          onLoad={() => setLoading(false)}
         />
       </div>
 
-      {/* FOOTER / FUENTES */}
+      {/* FOOTER */}
       <div
         style={{
           textAlign: "center",
@@ -59,34 +84,10 @@ export default function SeguridadDashboard() {
           lineHeight: "1.5",
         }}
       >
-        <p style={{ marginBottom: "8px" }}>
-          Datos procesados a partir de fuentes oficiales del Estado colombiano,
-          utilizados para análisis de seguridad ciudadana y comportamiento delictivo.
+        <p style={{ marginBottom: "6px" }}>
+          Datos centralizados para análisis operativo y toma de decisiones
+          estratégicas dentro de la plataforma.
         </p>
-
-        <small style={{ display: "block", opacity: 0.65 }}>
-          Fuente 1:{" "}
-          <a
-            href="https://www.datos.gov.co/Seguridad-y-Defensa/Turistas-v-ctimas-de-delitos-en-Colombia/p2r3-hbie/about_data"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#5E8152" }}
-          >
-            Datos Abiertos Colombia — Turistas víctimas de delitos en Colombia
-          </a>
-        </small>
-
-        <small style={{ display: "block", opacity: 0.65, marginTop: "4px" }}>
-          Fuente 2:{" "}
-          <a
-            href="https://www.policia.gov.co/estadistica-delictiva/hurto-personas"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#5E8152" }}
-          >
-            Policía Nacional de Colombia — Estadísticas de hurto a personas
-          </a>
-        </small>
       </div>
     </section>
   );

@@ -1,0 +1,276 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #0a0a14;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.admin-main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 2.5rem;
+  overflow-y: auto;
+}
+
+.admin-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.admin-section h3 {
+  font-size: 1rem;
+  color: #a78bfa;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.admin-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-highlight {
+  background: #1a1a2e;
+  border: 1px solid #a78bfa44;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  color: #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.admin-highlight strong { color: #a78bfa; }
+
+.admin-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-list li {
+  display: flex;
+  justify-content: space-between;
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #ccc;
+}
+
+.admin-list li strong { color: #fff; }
+
+.admin-loading { color: #888; padding: 2rem 0; }
+
+.admin-empty   { color: #555; font-style: italic; }
+
+.admin-timeline {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-timeline li {
+  color: #ccc;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #1a1a2e;
+}
+
+.admin-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-catalog__row {
+  display: grid;
+  grid-template-columns: 140px 1fr 80px 100px;
+  align-items: center;
+  gap: 1rem;
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.admin-catalog__name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.admin-catalog__bar-wrap {
+  background: #0a0a14;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.admin-catalog__bar {
+  height: 100%;
+  background: #a78bfa;
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+
+.admin-catalog__sales {
+  color: #aaa;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.admin-catalog__revenue {
+  color: #a78bfa;
+  font-weight: 600;
+  text-align: right;
+}
+
+.admin-chart-placeholder {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.admin-users__table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.admin-users__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-users__table th,
+.admin-users__table td {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.admin-users__table th {
+  color: #aaa;
+  font-weight: 600;
+}
+
+.admin-users__email {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.admin-users__role {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.admin-users__pagination {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.admin-users__pagination button {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+}
+
+.admin-users__pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-users__summary {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+/* =========================================================
+   ✨ NUEVO: STORY / HERO SYSTEM (sin romper tu diseño base)
+   ========================================================= */
+
+.admin-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0a0a14 100%);
+  border: 1px solid #a78bfa33;
+  border-radius: 14px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, #a78bfa22, transparent 60%);
+  pointer-events: none;
+}
+
+.admin-hero-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.admin-hero-subtitle {
+  color: #a78bfa;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.3px;
+}
+
+.admin-hero-text {
+  color: #cfcfe6;
+  line-height: 1.7;
+  max-width: 800px;
+}
+
+.admin-hero-text p {
+  margin-bottom: 1rem;
+}
+
+.admin-hero-footer {
+  margin-top: 1.5rem;
+  color: #777;
+  font-size: 0.85rem;
+  border-top: 1px solid #2a2a3a;
+  padding-top: 1rem;
+}
+
+/* micro mejora global de “sensación SaaS premium” */
+.admin-section {
+  animation: adminFadeIn 0.35s ease-out;
+}
+
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

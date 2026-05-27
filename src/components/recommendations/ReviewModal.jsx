@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./ReviewModal.css";
 
@@ -9,8 +9,21 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
   const [rating, setRating] = useState(5);
   const [loading, setLoading] = useState(false);
 
-  // 🪟 estado del popup
   const [showWarning, setShowWarning] = useState(false);
+
+  // =========================
+  // RESET AL CERRAR MODAL
+  // =========================
+  useEffect(() => {
+    if (!isOpen) {
+      setName("");
+      setCountry("");
+      setComment("");
+      setRating(5);
+      setLoading(false);
+      setShowWarning(false);
+    }
+  }, [isOpen]);
 
   const badPatterns = [
     /m[i1!|]e?r[d]+a/i,
@@ -22,11 +35,10 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
     /p[e3]nd[e3]j[o0]/i,
     /m[a@]r[i1]c[a@]/i,
     /gon[o0]rr[e3]a/i,
-    /h[p]+t[a@]/i,
   ];
 
-  const normalizeText = (text) => {
-    return text
+  const normalizeText = (text) =>
+    text
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -34,7 +46,6 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
       .replace(/[3]/g, "e")
       .replace(/[1!|]/g, "i")
       .replace(/[0]/g, "o");
-  };
 
   const containsBadWords = (text) => {
     const cleanText = normalizeText(text);
@@ -43,32 +54,33 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
 
   if (!isOpen) return null;
 
+  // =========================
+  // SUBMIT
+  // =========================
   const handleSubmit = async () => {
-    if (!name || !comment) return;
+    if (loading) return;
+
+    if (!name.trim() || !comment.trim()) return;
 
     if (containsBadWords(name) || containsBadWords(comment)) {
-      setShowWarning(true); // 👈 mostramos popup
+      setShowWarning(true);
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       await onSubmit({
-        name,
-        country,
+        name: name.trim(),
+        country: country.trim(),
         rating,
-        comment,
+        comment: comment.trim(),
         flag: "🌍",
       });
 
-      setName("");
-      setCountry("");
-      setComment("");
-      setRating(5);
       onClose();
     } catch (error) {
-      console.error("Error submitting review:", error);
+      console.error("❌ Error submitting review:", error);
     } finally {
       setLoading(false);
     }
@@ -79,8 +91,9 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
       <motion.div
         className="modal"
         onClick={(e) => e.stopPropagation()}
-        initial={{ scale: 0.92, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
       >
         <h3>✨ Añadir reseña</h3>
 
@@ -117,7 +130,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
         </div>
 
         <div className="actions">
-          <button onClick={onClose} className="cancel">
+          <button onClick={onClose} className="cancel" disabled={loading}>
             Cancelar
           </button>
 
@@ -130,7 +143,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
           </button>
         </div>
 
-        {/* 🚨 POPUP EMERGENTE */}
+        {/* 🚨 WARNING POPUP */}
         <AnimatePresence>
           {showWarning && (
             <motion.div
@@ -141,8 +154,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }) {
             >
               <h4>⚠️ Lenguaje no permitido</h4>
               <p>
-                Por favor evita usar palabras ofensivas. Mantén un lenguaje
-                respetuoso en tu reseña.
+                Por favor usa un lenguaje respetuoso en tu reseña.
               </p>
 
               <button onClick={() => setShowWarning(false)}>

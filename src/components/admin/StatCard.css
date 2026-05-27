@@ -1,0 +1,14 @@
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #1a1a2e;
+  border: 1px solid #2a2a4a;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+}
+.stat-card__icon { font-size: 2rem; }
+.stat-card__body { display: flex; flex-direction: column; gap: 2px; }
+.stat-card__label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-card__value { font-size: 1.6rem; font-weight: 700; color: #fff; }
+.stat-card__sub   { font-size: 0.75rem; color: #a78bfa; }

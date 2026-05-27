@@ -1,106 +1,180 @@
-/* =========================
-   SECTION
-========================= */
-.seguridad-section {
-  margin-top: 60px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+/* =========================================================
+   Analytics Dashboard — Dark / Neon Style
+   ========================================================= */
+
+:root {
+  --purple-core: #C07CFF;
+  --purple-glow: #9F47FF;
+  --cyan-electric: #3BE4F6;
+  --white-neon: #F0F4F8;
+  --bg-dark: #14181D;
+
+  --shadow-soft: 0 10px 25px rgba(159, 71, 255, 0.15);
+  --shadow-strong: 0 30px 60px rgba(159, 71, 255, 0.35);
+
+  --radius-lg: 20px;
+
+  --transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* =========================
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.analytics-section {
+  width: 100%;
+  padding: clamp(4rem, 7vw, 7rem) clamp(1.5rem, 6vw, 5rem);
+  background:
+    radial-gradient(900px 400px at top center, rgba(159, 71, 255, 0.15), transparent 60%),
+    var(--bg-dark);
+  color: var(--white-neon);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* =========================================================
    HEADER
-========================= */
-.seguridad-header {
+   ========================================================= */
+
+.analytics-header {
   text-align: center;
 }
 
-.seguridad-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #2f3e34;
-  margin-bottom: 8px;
+.analytics-header h2 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  color: var(--purple-core);
+  text-shadow: 0 0 30px rgba(192, 124, 255, 0.35);
+  margin-bottom: 10px;
 }
 
-.seguridad-subtitle {
-  opacity: 0.75;
-  max-width: 720px;
+.analytics-header p {
+  max-width: 700px;
   margin: 0 auto;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  opacity: 0.7;
+  line-height: 1.6;
 }
 
-/* =========================
-   DASHBOARD CONTAINER
-========================= */
-.dashboard-wrapper {
+/* =========================================================
+   CONTAINER (iframe)
+   ========================================================= */
+
+.analytics-container {
+  position: relative;
   width: 100%;
-  aspect-ratio: 1512 / 945;
-  max-height: 80vh;
-  border-radius: 14px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-  transition: box-shadow 0.3s ease;
+  background: #0f0f14;
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition);
 }
 
-.dashboard-wrapper:hover {
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+/* Hover boost (te gusta esto 👀) */
+.analytics-container:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-strong);
 }
 
-.dashboard-iframe {
+/* Glow border */
+.analytics-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(159, 71, 255, 0),
+    rgba(159, 71, 255, 0.8),
+    rgba(59, 228, 246, 0.8),
+    rgba(159, 71, 255, 0)
+  );
+  mask: linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.analytics-container:hover::before {
+  opacity: 1;
+}
+
+/* =========================================================
+   IFRAME
+   ========================================================= */
+
+.analytics-iframe {
   width: 100%;
   height: 100%;
   border: none;
 }
 
-/* =========================
-   FOOTER / SOURCES
-========================= */
-.seguridad-footer {
+/* =========================================================
+   LOADING OVERLAY
+   ========================================================= */
+
+.analytics-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white-neon);
+  font-size: 0.95rem;
+  opacity: 0.7;
+  backdrop-filter: blur(4px);
+  background: rgba(10, 10, 15, 0.6);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.analytics-footer {
   text-align: center;
   font-size: 0.85rem;
-  opacity: 0.75;
-  line-height: 1.5;
-}
-
-.seguridad-footer p {
-  margin-bottom: 8px;
-}
-
-.seguridad-source {
-  display: block;
   opacity: 0.65;
-  margin-top: 4px;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.seguridad-source a {
-  color: #5E8152;
-  font-weight: 500;
-  text-decoration: none;
+/* =========================================================
+   ANIMACIÓN ENTRADA
+   ========================================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.seguridad-source a:hover {
-  text-decoration: underline;
+.analytics-header,
+.analytics-container,
+.analytics-footer {
+  animation: fadeUp 0.8s ease both;
 }
 
-/* =========================
+.analytics-container {
+  animation-delay: 0.1s;
+}
+
+/* =========================================================
    RESPONSIVE
-========================= */
+   ========================================================= */
+
 @media (max-width: 768px) {
-  .seguridad-title {
-    font-size: 22px;
+  .analytics-section {
+    padding: 4rem 1.2rem;
   }
 
-  .seguridad-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .dashboard-wrapper {
-    max-height: none;
-    aspect-ratio: auto;
-    height: 65vh;
+  .analytics-header h2 {
+    font-size: 1.8rem;
   }
 }

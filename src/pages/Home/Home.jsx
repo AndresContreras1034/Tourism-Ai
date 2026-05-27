@@ -16,7 +16,7 @@ export default function Home() {
 
   const location = useLocation();
 
-  // 🔥 scroll al hero
+  // 🔥 scroll control (chat → hero)
   useEffect(() => {
     const hero = document.querySelector(".hero");
 
@@ -29,13 +29,11 @@ export default function Home() {
     }
   }, [location]);
 
-  // 🔍 search handler
   const handleSearch = useCallback((params) => {
     setSearchParams(params);
     console.log("Búsqueda:", params);
   }, []);
 
-  // 🔐 auth mock
   const handleLogin = () => console.log("login");
   const handleRegister = () => console.log("register");
   const handleLogout = () => setUser(null);
@@ -43,7 +41,6 @@ export default function Home() {
   return (
     <div className="home">
 
-      {/* NAVBAR */}
       <Navbar
         user={user}
         onLogin={handleLogin}
@@ -51,50 +48,20 @@ export default function Home() {
         onLogout={handleLogout}
       />
 
-      {/* MAIN */}
       <main className="home__main">
 
-        {/* HERO */}
         <Hero onSearch={handleSearch} />
 
-        {/* DASHBOARD */}
         <SeguridadDashboard />
 
-        {/* RECOMMENDATIONS */}
-        {/*<ErrorBoundary fallback={<div style={{ color: "white" }}>Recomendaciones no disponibles</div>}>
-          <RecommendationsSlider />
-        </ErrorBoundary>*/}
 
-        {/* FEATURES */}
+
         <Features />
 
       </main>
 
-      {/* FOOTER */}
       <Footer />
 
     </div>
   );
-}
-
-/* =========================
-   🔥 ERROR BOUNDARY SIMPLE
-========================= */
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || null;
-    }
-
-    return this.props.children;
-  }
 }
