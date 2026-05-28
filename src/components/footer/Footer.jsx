@@ -6,6 +6,7 @@ const FOOTER_DATA = {
     description:
       "Descubre experiencias personalizadas con inteligencia artificial.",
   },
+
   sections: [
     {
       title: "Explorar",
@@ -13,16 +14,20 @@ const FOOTER_DATA = {
         { label: "Inicio", href: "/" },
         { label: "Planes", href: "/plans" },
         { label: "Mapa", href: "/map" },
-      ],
-    },
-    {
-      title: "Cuenta",
-      links: [
-        { label: "Iniciar sesión", href: "/login" },
-        { label: "Crear cuenta", href: "/register" },
+        { label: "Pagos", href: "/payments" },
       ],
     },
   ],
+
+  legal: {
+    title: "Legal",
+    links: [
+      { label: "Cookies", href: "/cookies" },
+      { label: "Estado del sistema", href: "/status" },
+      { label: "Privacidad", href: "/privacy" },
+    ],
+  },
+
   contact: {
     email: "soporte@tourismai.com",
     location: "Bogotá, Colombia",
@@ -60,7 +65,7 @@ export default function Footer() {
           <p>{FOOTER_DATA.brand.description}</p>
         </div>
 
-        {/* SECTIONS */}
+        {/* EXPLORE */}
         {FOOTER_DATA.sections.map((section) => (
           <FooterSection
             key={section.title}
@@ -68,6 +73,12 @@ export default function Footer() {
             links={section.links}
           />
         ))}
+
+        {/* LEGAL */}
+        <FooterSection
+          title={FOOTER_DATA.legal.title}
+          links={FOOTER_DATA.legal.links}
+        />
 
         {/* CONTACT */}
         <div className="footer-section">

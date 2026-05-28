@@ -23,6 +23,7 @@ export default function ProductSection() {
         <StatCard icon="🤖" label="Generados por IA"      value={stats.by_source.find(s => s.source === "ai")?.count ?? 0} />
         <StatCard icon="✏️" label="Manuales"              value={stats.by_source.find(s => s.source === "manual")?.count ?? 0} />
         <StatCard icon="📊" label="Planes por usuario"    value={stats.avg_plans_per_user ?? "—"} />
+        <StatCard icon="🪙" label="Tokens usados (IA)"    value={stats.total_tokens ?? 0} />
       </div>
 
       <h3>🏙 Destinos más usados</h3>
