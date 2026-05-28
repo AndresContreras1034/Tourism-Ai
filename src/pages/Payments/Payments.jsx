@@ -54,9 +54,8 @@ export default function Payments() {
     try {
       setLoading(true);
       setError(null);
-
-      const res = await fetch("/api/payments/create-intent", {
-        method: "POST",
+const res = await fetch(`${import.meta.env.VITE_API_URL}/payments/create-intent`, {
+              method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
