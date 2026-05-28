@@ -8,7 +8,7 @@ import Hero from "../../components/hero/Hero";
 import Features from "../../components/features/Features";
 import Footer from "../../components/footer/Footer";
 import RecommendationsSlider from "../../components/recommendations/RecommendationsSlider";
-import SeguridadDashboard from "../../components/dashboard/SeguridadDashboard";
+import AnalyticsDashboard from "../../components/analytics/AnalyticsDashboard";
 
 export default function Home() {
   const [searchParams, setSearchParams] = useState(null);
@@ -52,9 +52,7 @@ export default function Home() {
 
         <Hero onSearch={handleSearch} />
 
-        <SeguridadDashboard />
-
-
+        <AnalyticsDashboard />
 
         <Features />
 

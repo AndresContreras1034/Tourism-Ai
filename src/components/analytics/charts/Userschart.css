@@ -1,0 +1,71 @@
+.uc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem;
+}
+
+.uc-card {
+  background: rgba(20, 24, 29, 0.7);
+  border: 1px solid rgba(192, 124, 255, 0.15);
+  border-radius: 16px;
+  padding: 1.2rem 1.2rem 0.8rem;
+  backdrop-filter: blur(14px);
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+
+.uc-card:hover {
+  border-color: rgba(192, 124, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(159, 71, 255, 0.15);
+}
+
+.uc-card--wide {
+  grid-column: span 2;
+}
+
+.uc-card__title {
+  font-family: "Syne", sans-serif;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: #7a8899;
+  margin: 0 0 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+.uc-tooltip {
+  background: rgba(10, 10, 14, 0.95);
+  border: 1px solid rgba(192, 124, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.82rem;
+  color: var(--white-neon, #F0F4F8);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(159, 71, 255, 0.1);
+}
+
+.uc-tooltip__label {
+  font-family: "Syne", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--white-neon, #F0F4F8);
+  margin: 0 0 0.25rem;
+  text-transform: capitalize;
+}
+
+.uc-skeleton {
+  height: 400px;
+  background: linear-gradient(90deg, #0d1520 25%, #111c2d 50%, #0d1520 75%);
+  background-size: 200% 100%;
+  border-radius: 16px;
+  animation: uc-shimmer 1.4s infinite;
+}
+
+@keyframes uc-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 900px) {
+  .uc-grid { grid-template-columns: 1fr; }
+  .uc-card--wide { grid-column: span 1; }
+}
