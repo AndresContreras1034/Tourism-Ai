@@ -27,7 +27,7 @@ const INTERESTS = [
   "🌄 Miradores y paisajes",
 ];
 
-export default function FiltersForm() {
+export default function FiltersForm({ onSuccess }) {
   const navigate = useNavigate();
 
   const [data, setData] = useState(INITIAL_STATE);
@@ -38,7 +38,6 @@ export default function FiltersForm() {
   const toggleInterest = (interest) => {
     setData((prev) => {
       const exists = prev.interests.includes(interest);
-
       return {
         ...prev,
         interests: exists
@@ -77,12 +76,15 @@ export default function FiltersForm() {
       // 💾 2. LOCAL CACHE (UX rápido)
       localStorage.setItem("userProfile", JSON.stringify(payload));
 
-      // 🚀 3. IR AL HERO (FLUJO FINAL)
-      navigate("/mfa", {
-        state: {
-          onboardingCompleted: true,
-        },
-      });
+      // ✅ FIX: llamar onSuccess en lugar de navigate("/mfa")
+      // Onboarding.jsx recibe onSuccess y llama onComplete()
+      // que abre el QR modal desde AppRouter
+      if (onSuccess) {
+        onSuccess(payload);
+      } else {
+        // fallback por si FiltersForm se usa fuera del Onboarding
+        navigate("/");
+      }
 
     } catch (err) {
       console.error(err);
@@ -94,7 +96,7 @@ export default function FiltersForm() {
 
   return (
     <form className="filters-ai" onSubmit={handleSubmit}>
-      
+
       <h2>🌍 Diseña tu experiencia desde Bogotá</h2>
       <p>Te creamos experiencias personalizadas con IA</p>
 
@@ -160,7 +162,6 @@ export default function FiltersForm() {
       {/* INTERESES */}
       <div className="field">
         <label>🔥 Intereses</label>
-
         <div className="interests-grid">
           {INTERESTS.map((item) => (
             <button
@@ -181,6 +182,7 @@ export default function FiltersForm() {
       <button className="btn-primary" type="submit" disabled={loading}>
         {loading ? "Creando perfil..." : "✨ Crear experiencia"}
       </button>
+
     </form>
   );
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
@@ -25,12 +25,18 @@ import { AuthContext } from "../context/AuthContext";
 const ADMIN_ROLES = ["admin", "superadmin"];
 
 /* =========================================================
+   RUTAS DONDE NO SE REDIRIGE POR TOKENS = 0
+   (usuario nuevo que aún no ha comprado)
+========================================================= */
+const TOKEN_REDIRECT_EXCLUDED = ["/payment", "/onboarding", "/login", "/register"];
+
+/* =========================================================
    🔒 GUARD: solo admin / superadmin
 ========================================================= */
 function AdminRoute({ user, loading, children }) {
-  if (loading) return null; // espera a que AuthContext inicialice
+  if (loading) return null;
   if (!user)   return <Navigate to="/login" state={{ from: "/admin" }} replace />;
-  if (!ADMIN_ROLES.includes(user.role)) return <Navigate to="/" replace />; // 👈 fix
+  if (!ADMIN_ROLES.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -44,7 +50,7 @@ function PrivateRoute({ user, loading, children }) {
 }
 
 export default function AppRouter() {
-  const { user, loading } = useContext(AuthContext);
+  const { user, loading, syncSession } = useContext(AuthContext);
 
   const [mfaState, setMfaState] = useState({
     qr: false,
@@ -61,11 +67,13 @@ export default function AppRouter() {
   const tokens = user?.tokens ?? null;
 
   useEffect(() => {
-    if (
-      tokens !== null &&
-      tokens <= 0 &&
-      window.location.pathname !== "/payment"
-    ) {
+    // ✅ FIX: excluir /onboarding, /login y /register del redirect
+    // Un usuario recién registrado tiene tokens = 0 y debe poder
+    // completar el onboarding y MFA antes de que se le pida pagar
+    const path = window.location.pathname;
+    const isExcluded = TOKEN_REDIRECT_EXCLUDED.some((p) => path.startsWith(p));
+
+    if (tokens !== null && tokens <= 0 && !isExcluded) {
       window.location.replace("/payment");
     }
   }, [tokens]);
@@ -87,7 +95,14 @@ export default function AppRouter() {
           path="/onboarding"
           element={
             <PrivateRoute user={user} loading={loading}>
-              <Onboarding onComplete={() => openQr(user?.id)} />
+              <Onboarding
+                onComplete={() => {
+                  // ✅ FIX: leer user de localStorage en el momento de llamarse
+                  // evita el closure stale donde user?.id era null al renderizar
+                  const storedUser = JSON.parse(localStorage.getItem("user"));
+                  openQr(storedUser?.id);
+                }}
+              />
             </PrivateRoute>
           }
         />
@@ -147,7 +162,10 @@ export default function AppRouter() {
           isOpen={mfaState.qr}
           userId={mfaState.userId}
           onClose={closeAll}
-          onNext={() => openSetup(mfaState.userId)}
+          onSuccess={() => {
+            syncSession();
+            closeAll();
+          }}
         />
       )}
       {mfaState.setup && (

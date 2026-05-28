@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { registerUser, loginUser } from "../../services/auth.service";
+import { AuthContext } from "../../context/AuthContext";
 import "./Register.css";
 
 const STORAGE_KEY = "registerForm";
@@ -57,6 +58,9 @@ const saveForm = (form) => {
 // ==============================
 export default function RegisterForm() {
   const navigate = useNavigate();
+
+  // ✅ FIX: importar syncSession del contexto
+  const { syncSession } = useContext(AuthContext);
 
   const [form, setForm] = useState(loadForm);
   const [errors, setErrors] = useState({});
@@ -119,7 +123,7 @@ export default function RegisterForm() {
   };
 
   // ==============================
-  // 🚀 SUBMIT (FIX REAL)
+  // 🚀 SUBMIT
   // ==============================
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,7 +155,7 @@ export default function RegisterForm() {
 
       console.log("🟡 REGISTER OK", res);
 
-      // 2️⃣ 🔥 AUTO LOGIN (FIX CRÍTICO)
+      // 2️⃣ AUTO LOGIN
       const loginRes = await loginUser({
         email: payload.email,
         password: payload.password,
@@ -164,7 +168,11 @@ export default function RegisterForm() {
         localStorage.setItem("user", JSON.stringify(loginRes.user));
         localStorage.setItem("token", loginRes.token);
 
-        console.log("💾 SESSION SAVED AFTER REGISTER");
+        // ✅ FIX: notificar al AuthContext inmediatamente
+        // para que user?.id esté disponible en AppRouter
+        syncSession();
+
+        console.log("💾 SESSION SAVED + CONTEXT SYNCED");
       }
 
       // 4️⃣ CLEAN FORM + NAVIGATE
