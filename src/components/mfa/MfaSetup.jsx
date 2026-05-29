@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import MfaQRModal from "./MfaQrModal";
+import API_URL from "../../services/api";
 
 export default function MfaSetup({ user }) {
 
@@ -70,7 +71,7 @@ export default function MfaSetup({ user }) {
 
       const response =
         await fetch(
-          `http://localhost:3000/api/user/${userId}`,
+          `${API_URL}/user/${userId}`,
           {
             headers: {
               Authorization:

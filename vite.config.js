@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/', // 👈 IMPORTANTE: dominio propio
+  base: '/Tourism-Ai/', // 👈 nombre exacto del repo en GitHub Pages
 
   plugins: [react()],
 

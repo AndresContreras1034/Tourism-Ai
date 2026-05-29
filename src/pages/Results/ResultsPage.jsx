@@ -7,6 +7,7 @@ import Footer from "../../components/footer/Footer";
 import PlanCard from "../../components/marketplace/PlanCard";
 
 import { AuthContext } from "../../context/AuthContext";
+import API_URL from "../../services/api";
 
 // =====================================================
 // 🔌 API CALL
@@ -14,7 +15,7 @@ import { AuthContext } from "../../context/AuthContext";
 const plansApi = (token) => ({
   async getRecommendations(filters) {
     const res = await fetch(
-      "http://localhost:3000/api/ai/recommendations",
+      `${API_URL}/ai/recommendations`,
       {
         method: "POST",
         headers: {

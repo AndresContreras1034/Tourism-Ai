@@ -1,6 +1,4 @@
-import { get } from "./api";
-
-const LOCAL = "http://localhost:3000/api";
+const LOCAL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export async function getOverview() {
   const res = await fetch(`${LOCAL}/analytics/overview`);

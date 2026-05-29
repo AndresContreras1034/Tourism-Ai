@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from "react";
+import API_URL from "../services/api";
 
 export const AuthContext = createContext();
 
@@ -74,7 +75,7 @@ export function AuthProvider({ children }) {
     if (!storedToken) return;
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/me", {
+      const res = await fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${storedToken}` },
       });
 
@@ -99,7 +100,7 @@ export function AuthProvider({ children }) {
   const login = async (credentials) => {
     console.log("🚀 [LOGIN START]", credentials);
     try {
-      const res  = await fetch("http://localhost:3000/api/auth/login", {
+      const res  = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
